@@ -1,0 +1,82 @@
+name: Acceptance Tests
+
+on:
+  push:
+    branches:
+      - master
+      - acceptance-tests
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.0.0
+      - name: Test
+        env:
+          # Test Configuration
+          ACCTEST_PARALLELISM: 1
+          BRANCH_NAME: ${{ env.GITHUB_REF }}
+          PROVIDER_NAME: github
+          PROVIDER_PATH: "."
+          PROVIDER_REPO: terraform-provider-github
+          SWEEPER_REGIONS: gh-region
+          TEST_PATTERN: TestACC
+
+          # Acceptance Test Infrastructure
+          GITHUB_ORGANIZATION: terraformtesting
+          GITHUB_TEMPLATE_REPOSITORY: terraform-template-module
+          GITHUB_TEST_COLLABORATOR: github-terraform-test-collaborator
+          GITHUB_TEST_COLLABORATOR_TOKEN: ${{ secrets.GITHUB_TEST_COLLABORATOR_TOKEN }}
+          GITHUB_TEST_USER: github-terraform-test-user
+
+          # Go
+          GO11MODULE: on
+          GO_VERSION: 1.12.9
+          GOENV_DISABLE_GOPATH: 1
+          GOENV_ROOT: /opt/goenv
+          GOENV_TOOL_VERSION:	master
+          GOFLAGS: "-mod=vendor"
+          GOPATH: .
+          PATH:	/opt/goenv/shims:/opt/goenv/bin:%env.PATH%:/usr/local/go/bin:%env.GOPATH%/bin:%system.teamcity.build.checkoutDir%/bin
+
+          # Terraform
+          TF_ACC_TERRAFORM_VERSION:	0.12.20
+          TF_LOG:	DEBUG
+          TF_LOG_PATH_MASK:	%system.teamcity.build.checkoutDir%/debug-%PROVIDER_NAME%-%env.BUILD_NUMBER%-%s.log
+
+        run: |
+          # Setup GOENV
+          echo "Checking local Go version in $PWD"
+          LOCAL_GO_VERSION=$(goenv local 2>/dev/null)
+          if [ $? == 0 ]; then
+              echo "GO_VERSION overridden by local (${LOCAL_GO_VERSION})"
+              GO_VERSION=$LOCAL_GO_VERSION
+          else
+              echo "No local version detected"
+          fi
+          if [ -z "${GO_VERSION}" ]; then
+              echo "\nNo GO_VERSION specified, continuing with system version"
+              return
+          fi
+          pushd /opt/goenv
+          echo "\nUpdating goenv to ${GOENV_TOOL_VERSION}...\n"
+          git pull origin ${GOENV_TOOL_VERSION}
+          popd
+          echo "\nInstalling Go version ${GO_VERSION}...\n"
+          goenv install -s ${GO_VERSION}
+          goenv local ${GO_VERSION}
+          goenv rehash
+          echo "\ngo env:\n"
+          go env
+          echo "\nPATH:\n${PATH}"
+
+          # Vendor Replace Hack
+          grep 'replace .* => \./' go.mod && go mod vendor
+          exit 0
+
+          # Pre-Sweeper
+          go test ./${PROVIDER_PATH}/${PROVIDER_NAME} -v -sweep="${SWEEPER_REGIONS}"
+
+          # Post-Sweeper
+          go test ./${PROVIDER_PATH}/${PROVIDER_NAME} -v -sweep="${SWEEPER_REGIONS}"
