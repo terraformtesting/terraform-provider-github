@@ -43,7 +43,7 @@ jobs:
           # Terraform
           TF_ACC_TERRAFORM_VERSION:	0.12.20
           TF_LOG:	DEBUG
-          TF_LOG_PATH_MASK:	%system.teamcity.build.checkoutDir%/debug-%PROVIDER_NAME%-%env.BUILD_NUMBER%-%s.log
+          # TF_LOG_PATH_MASK:	%system.teamcity.build.checkoutDir%/debug-%PROVIDER_NAME%-%env.BUILD_NUMBER%-%s.log
 
         run: |
           # Setup GOENV
