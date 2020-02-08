@@ -20,3 +20,9 @@ jobs:
           GITHUB_TEST_COLLABORATOR: github-terraform-test-collaborator
           GITHUB_TEST_COLLABORATOR_TOKEN: ${{ secrets.GITHUB_TEST_COLLABORATOR_TOKEN }}
           GITHUB_TEMPLATE_REPOSITORY: terraform-template-module
+        - uses: actions/cache@v1
+          with:
+            path: ~/go/pkg/mod
+            key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+            restore-keys: |
+              ${{ runner.os }}-go-
