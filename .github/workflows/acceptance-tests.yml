@@ -46,6 +46,7 @@ jobs:
           # TF_LOG_PATH_MASK:	%system.teamcity.build.checkoutDir%/debug-%PROVIDER_NAME%-%env.BUILD_NUMBER%-%s.log
 
         run: |
+          set +x
           # Setup GOENV
           echo "Checking local Go version in $PWD"
           LOCAL_GO_VERSION=$(goenv local 2>/dev/null)
@@ -70,13 +71,13 @@ jobs:
           echo "\ngo env:\n"
           go env
           echo "\nPATH:\n${PATH}"
-
-          # Vendor Replace Hack
-          grep 'replace .* => \./' go.mod && go mod vendor
-          exit 0
-
-          # Pre-Sweeper
-          go test ./${PROVIDER_PATH}/${PROVIDER_NAME} -v -sweep="${SWEEPER_REGIONS}"
-
-          # Post-Sweeper
-          go test ./${PROVIDER_PATH}/${PROVIDER_NAME} -v -sweep="${SWEEPER_REGIONS}"
+          #
+          # # Vendor Replace Hack
+          # grep 'replace .* => \./' go.mod && go mod vendor
+          # exit 0
+          #
+          # # Pre-Sweeper
+          # go test ./${PROVIDER_PATH}/${PROVIDER_NAME} -v -sweep="${SWEEPER_REGIONS}"
+          #
+          # # Post-Sweeper
+          # go test ./${PROVIDER_PATH}/${PROVIDER_NAME} -v -sweep="${SWEEPER_REGIONS}"
