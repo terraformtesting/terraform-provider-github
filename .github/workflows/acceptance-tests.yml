@@ -46,31 +46,30 @@ jobs:
           # TF_LOG_PATH_MASK:	%system.teamcity.build.checkoutDir%/debug-%PROVIDER_NAME%-%env.BUILD_NUMBER%-%s.log
 
         run: |
-          set +x
           # Setup GOENV
           echo "Checking local Go version in $PWD"
-          LOCAL_GO_VERSION=$(goenv local 2>/dev/null)
-          if [ $? == 0 ]; then
-              echo "GO_VERSION overridden by local (${LOCAL_GO_VERSION})"
-              GO_VERSION=$LOCAL_GO_VERSION
-          else
-              echo "No local version detected"
-          fi
-          if [ -z "${GO_VERSION}" ]; then
-              echo "\nNo GO_VERSION specified, continuing with system version"
-              return
-          fi
-          pushd /opt/goenv
-          echo "\nUpdating goenv to ${GOENV_TOOL_VERSION}...\n"
-          git pull origin ${GOENV_TOOL_VERSION}
-          popd
-          echo "\nInstalling Go version ${GO_VERSION}...\n"
-          goenv install -s ${GO_VERSION}
-          goenv local ${GO_VERSION}
-          goenv rehash
-          echo "\ngo env:\n"
-          go env
-          echo "\nPATH:\n${PATH}"
+          # LOCAL_GO_VERSION=$(goenv local 2>/dev/null)
+          # if [ $? == 0 ]; then
+          #     echo "GO_VERSION overridden by local (${LOCAL_GO_VERSION})"
+          #     GO_VERSION=$LOCAL_GO_VERSION
+          # else
+          #     echo "No local version detected"
+          # fi
+          # if [ -z "${GO_VERSION}" ]; then
+          #     echo "\nNo GO_VERSION specified, continuing with system version"
+          #     return
+          # fi
+          # pushd /opt/goenv
+          # echo "\nUpdating goenv to ${GOENV_TOOL_VERSION}...\n"
+          # git pull origin ${GOENV_TOOL_VERSION}
+          # popd
+          # echo "\nInstalling Go version ${GO_VERSION}...\n"
+          # goenv install -s ${GO_VERSION}
+          # goenv local ${GO_VERSION}
+          # goenv rehash
+          # echo "\ngo env:\n"
+          # go env
+          # echo "\nPATH:\n${PATH}"
           #
           # # Vendor Replace Hack
           # grep 'replace .* => \./' go.mod && go mod vendor
