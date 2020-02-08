@@ -48,17 +48,17 @@ jobs:
         run: |
           # Setup GOENV
           echo "Checking local Go version in $PWD"
-          # LOCAL_GO_VERSION=$(goenv local 2>/dev/null)
-          # if [ $? == 0 ]; then
-          #     echo "GO_VERSION overridden by local (${LOCAL_GO_VERSION})"
-          #     GO_VERSION=$LOCAL_GO_VERSION
-          # else
-          #     echo "No local version detected"
-          # fi
-          # if [ -z "${GO_VERSION}" ]; then
-          #     echo "\nNo GO_VERSION specified, continuing with system version"
-          #     return
-          # fi
+          LOCAL_GO_VERSION=$(goenv local 2>/dev/null)
+          if [ $? == 0 ]; then
+              echo "GO_VERSION overridden by local (${LOCAL_GO_VERSION})"
+              GO_VERSION=$LOCAL_GO_VERSION
+          else
+              echo "No local version detected"
+          fi
+          if [ -z "${GO_VERSION}" ]; then
+              echo "\nNo GO_VERSION specified, continuing with system version"
+              return
+          fi
           # pushd /opt/goenv
           # echo "\nUpdating goenv to ${GOENV_TOOL_VERSION}...\n"
           # git pull origin ${GOENV_TOOL_VERSION}
