@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.0.0
-      - name: Acceptance Tests
+      - name:  Acceptance Tests
         uses: terraformtesting/acceptance-tests@v1
         with:
           GITHUB_ORGANIZATION: terraformtesting
