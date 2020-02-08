@@ -14,9 +14,6 @@ jobs:
       - name: Acceptance Tests
         uses: terraformtesting/acceptance-tests@v1
         with:
-          PROVIDER_PATH: '.'
-          PROVIDER_NAME: terraform-provider-github
-          SWEEPER_REGIONS: gh-region
           GITHUB_ORGANIZATION: terraformtesting
           GITHUB_TEST_USER: github-terraform-test-user
           GITHUB_TEST_USER_TOKEN: ${{ secrets.GITHUB_TEST_USER_TOKEN }}
