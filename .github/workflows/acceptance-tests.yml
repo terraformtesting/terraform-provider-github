@@ -22,7 +22,7 @@ jobs:
 
           # Install self-signed CA
           mkdir -p /usr/share/ca-certificates/self
-          echo self/minica.pem >> /etc/ca-certificates.conf
+          sudo echo "self/minica.pem" >> /etc/ca-certificates.conf
           go get github.com/jsha/minica
           minica -domains localhost
           mv minica.pem /usr/share/ca-certificates/self/
