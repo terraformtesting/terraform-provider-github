@@ -13,11 +13,23 @@ jobs:
         uses: actions/checkout@v2.0.0
       - name: Generate Test Fixtures
         run: |
-          openssl req -x509 \
-            -keyout github/test-fixtures/key.pem -out github/test-fixtures/cert.pem \
-            -newkey rsa:2048 -nodes -sha256 \
-            -subj '/CN=localhost' -extensions EXT -config <( \
-             printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+          # Install self-signed CA
+          # openssl req -x509 \
+          #   -keyout github/test-fixtures/key.pem -out github/test-fixtures/cert.pem \
+          #   -newkey rsa:2048 -nodes -sha256 \
+          #   -subj '/CN=localhost' -extensions EXT -config <( \
+          #    printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+
+          # Install self-signed CA
+          mkdir -p /usr/share/ca-certificates/self
+          echo self/minica.pem >> /etc/ca-certificates.conf
+          go get github.com/jsha/minica
+          minica -domains localhost
+          mv minica.pem /usr/share/ca-certificates/self/
+          update-ca-certificates --verbose
+
+          # Install test certificates
+          mv localhost/*.pem github/test-fixtures/
       - name: Acceptance Tests
         uses: terraformtesting/acceptance-tests@v1
         with:
