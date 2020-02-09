@@ -13,11 +13,15 @@ jobs:
         uses: actions/checkout@v2.0.0
       - name: Generate Test Fixtures
         run: |
-          openssl req -x509 \
-            -keyout github/test-fixtures/key.pem -out github/test-fixtures/cert.pem \
-            -newkey rsa:2048 -nodes -sha256 \
-            -subj '/CN=localhost' -extensions EXT -config <( \
-             printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+          # Install self-signed CA
+          # openssl req -x509 \
+          #   -keyout github/test-fixtures/key.pem -out github/test-fixtures/cert.pem \
+          #   -newkey rsa:2048 -nodes -sha256 \
+          #   -subj '/CN=localhost' -extensions EXT -config <( \
+          #    printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+          openssl req -x509 -newkey rsa:4096 -days 1 -nodes \
+            -subj "/C=US/ST=CA/L=San Francisco/O=HashiCorp, Inc./CN=localhost" \
+            -keyout github/test-fixtures/key.pem -out github/test-fixtures/cert.pem
       - name: Acceptance Tests
         uses: terraformtesting/acceptance-tests@v1
         with:
