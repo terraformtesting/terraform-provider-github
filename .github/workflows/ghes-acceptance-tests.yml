@@ -1,6 +1,7 @@
 name: GHES Acceptance Tests
 
 on:
+  push:
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -18,13 +19,6 @@ jobs:
       - name: Acceptance Tests
         uses: terraformtesting/acceptance-tests@v2.0.0
         with:
+          RUN_ALL: true
           GITHUB_BASE_URL: "https://terraformtesting-ghe.eastus.cloudapp.azure.com/"
           GITHUB_OWNER: terraformtesting
-          GITHUB_TEST_USER: github-terraform-test-user
-          GITHUB_TEST_USER_NAME: "Test User"
-          GITHUB_TEST_USER_EMAIL: 60107403+github-terraform-test-user@users.noreply.github.com
-          GITHUB_TEST_USER_TOKEN: ${{ secrets.GITHUB_TEST_USER_TOKEN }}
-          GITHUB_TEST_COLLABORATOR: github-terraform-test-collaborator
-          GITHUB_TEST_COLLABORATOR_TOKEN: ${{ secrets.GITHUB_TEST_COLLABORATOR_TOKEN }}
-          GITHUB_TEMPLATE_REPOSITORY: terraform-template-module
-          GITHUB_TEMPLATE_REPOSITORY_RELEASE_ID: 23826477
