@@ -17,14 +17,6 @@ var testToken string = os.Getenv("GITHUB_TOKEN")
 var testTokenGHES string = os.Getenv("GHES_TOKEN")
 var testBaseURLGHES string = os.Getenv("GHES_BASE_URL")
 
-func testAccPreCheckEnvironment(t *testing.T, requiredEnvironmentVariables []string) {
-	for _, variable := range requiredEnvironmentVariables {
-		if v := os.Getenv(variable); v == "" {
-			t.Fatal(variable + " must be set for acceptance tests")
-		}
-	}
-}
-
 func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("GITHUB_TOKEN"); v == "" {
 		t.Fatal("GITHUB_TOKEN must be set for acceptance tests")
@@ -44,6 +36,33 @@ func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("GITHUB_TEMPLATE_REPOSITORY_RELEASE_ID"); v == "" {
 		t.Fatal("GITHUB_TEMPLATE_REPOSITORY_RELEASE_ID must be set for acceptance tests")
 	}
+}
+
+func skipUnlessMode(t *testing.T, providerMode string) {
+	switch providerMode {
+	case "anonymous":
+		if os.Getenv("GITHUB_TOKEN") == "" {
+			return
+		} else {
+			t.Log("GITHUB_TOKEN environment variable should be empty")
+		}
+	case "individual":
+		if os.Getenv("GITHUB_TOKEN") != "" || os.Getenv("GITHUB_OWNER") != "" {
+			return
+		} else {
+			t.Log("GITHUB_TOKEN and GITHUB_OWNER environment variables should be set")
+		}
+	case "organization":
+		if os.Getenv("GITHUB_TOKEN") != "" || os.Getenv("GITHUB_ORGANIZATION") != "" {
+			return
+		} else {
+			t.Log("GITHUB_TOKEN and GITHUB_ORGANIZATION environment variables should be set")
+		}
+	default:
+		t.Fatal("failed to determine provider mode during pre-check")
+	}
+
+	t.Skipf("Skipping %s when in %s mode", t.Name(), providerMode)
 }
 
 func testAccCheckOrganization() error {

@@ -28,11 +28,12 @@ func TestAccGithubOrganizationDataSource(t *testing.T) {
 
 		resource.Test(t, resource.TestCase{
 			PreCheck: func() {
-				requiredEnvironmentVariables := []string{
-					"GITHUB_TOKEN",
-					"GITHUB_ORGANIZATION",
-				}
-				testAccPreCheckEnvironment(t, requiredEnvironmentVariables)
+				// FIXME
+				// requiredEnvironmentVariables := []string{
+				// 	"GITHUB_TOKEN",
+				// 	"GITHUB_ORGANIZATION",
+				// }
+				// testAccPreCheckEnvironment(t, requiredEnvironmentVariables)
 			},
 			Providers: testAccProviders,
 			Steps: []resource.TestStep{

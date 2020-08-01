@@ -82,14 +82,30 @@ func TestAccProviderConfigure(t *testing.T) {
 		providerConfig := `provider "github" {}`
 
 		username := "hashibot"
-		resource.Test(t, resource.TestCase{
-			Providers: testAccProviders,
-			Steps: []resource.TestStep{
-				{
-					Config:      providerConfig + testAccCheckGithubUserDataSourceConfig(username),
-					ExpectError: regexp.MustCompile("x509: certificate is valid for untrusted, not localhost"),
+
+		testCase := func(mode string) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:  func() { skipUnlessMode(t, mode) },
+				Providers: testAccProviders,
+				Steps: []resource.TestStep{
+					{
+						Config:      providerConfig + testAccCheckGithubUserDataSourceConfig(username),
+						ExpectError: regexp.MustCompile("x509: certificate is valid for untrusted, not localhost"),
+					},
 				},
-			},
+			})
+		}
+
+		t.Run("with an anonymous account", func(t *testing.T) {
+			testCase("anonymous")
+		})
+
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase("individual")
+		})
+
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase("organization")
 		})
 
 	})
@@ -108,7 +124,7 @@ func TestAccProviderConfigure(t *testing.T) {
 		)
 
 		resource.Test(t, resource.TestCase{
-			PreCheck:  func() {},
+			PreCheck:  func() { skipUnlessMode(t, "anonymous") },
 			Providers: testAccProviders,
 			Steps: []resource.TestStep{
 				{
@@ -137,11 +153,7 @@ func TestAccProviderConfigure(t *testing.T) {
 
 		resource.Test(t, resource.TestCase{
 			PreCheck: func() {
-				requiredEnvironmentVariables := []string{
-					"GITHUB_TOKEN",
-					"GITHUB_OWNER",
-				}
-				testAccPreCheckEnvironment(t, requiredEnvironmentVariables)
+				skipUnlessMode(t, "individual")
 			},
 			Providers: testAccProviders,
 			Steps: []resource.TestStep{
@@ -173,11 +185,7 @@ func TestAccProviderConfigure(t *testing.T) {
 
 		resource.Test(t, resource.TestCase{
 			PreCheck: func() {
-				requiredEnvironmentVariables := []string{
-					"GITHUB_ORGANIZATION",
-					"GITHUB_TOKEN",
-				}
-				testAccPreCheckEnvironment(t, requiredEnvironmentVariables)
+				skipUnlessMode(t, "organization")
 			},
 			Providers: testAccProviders,
 			Steps: []resource.TestStep{
@@ -207,22 +215,29 @@ func TestAccProviderConfigure(t *testing.T) {
 			resource.TestCheckResourceAttrSet("data.github_organization.test", "plan"),
 		)
 
-		resource.Test(t, resource.TestCase{
-			PreCheck: func() {
-				requiredEnvironmentVariables := []string{
-					"GHES_TOKEN",
-					"GHES_BASE_URL",
-					"GHES_ORGANIZATION",
-				}
-				testAccPreCheckEnvironment(t, requiredEnvironmentVariables)
-			},
-			Providers: testAccProviders,
-			Steps: []resource.TestStep{
-				{
-					Config: organizationConfiguration,
-					Check:  organizationCheck,
+		testCase := func(mode string) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:  func() { skipUnlessMode(t, mode) },
+				Providers: testAccProviders,
+				Steps: []resource.TestStep{
+					{
+						Config: organizationConfiguration,
+						Check:  organizationCheck,
+					},
 				},
-			},
+			})
+		}
+
+		t.Run("with an anonymous account", func(t *testing.T) {
+			testCase("anonymous")
+		})
+
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase("individual")
+		})
+
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase("organization")
 		})
 
 	})
