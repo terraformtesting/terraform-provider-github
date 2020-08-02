@@ -221,3 +221,7 @@ func OwnerOrOrgEnvDefaultFunc() (interface{}, error) {
 	}
 	return os.Getenv("GITHUB_OWNER"), nil
 }
+
+const anonymous = "anonymous"
+const individual = "individual"
+const organization = "organization"

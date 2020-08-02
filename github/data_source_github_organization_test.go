@@ -11,15 +11,13 @@ func TestAccGithubOrganizationDataSource(t *testing.T) {
 
 	t.Run("queries for an organization without error", func(t *testing.T) {
 
-		organizationConfiguration := fmt.Sprintf(`
-			provider "github" {
-				organization = "%s"
-				token = "%s"
+		config := fmt.Sprintf(`
+			data "github_organization" "test" {
+				name = "%s"
 			}
-			data "github_organization" "test" { name = "%s" }
-		`, testOrganization, testToken, testOrganization)
+		`, testOrganization)
 
-		organizationCheck := resource.ComposeTestCheckFunc(
+		check := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttrSet("data.github_organization.test", "login"),
 			resource.TestCheckResourceAttrSet("data.github_organization.test", "name"),
 			resource.TestCheckResourceAttrSet("data.github_organization.test", "description"),
@@ -32,8 +30,8 @@ func TestAccGithubOrganizationDataSource(t *testing.T) {
 				Providers: testAccProviders,
 				Steps: []resource.TestStep{
 					{
-						Config: organizationConfiguration,
-						Check:  organizationCheck,
+						Config: config,
+						Check:  check,
 					},
 				},
 			})
@@ -44,11 +42,11 @@ func TestAccGithubOrganizationDataSource(t *testing.T) {
 		})
 
 		t.Run("with an individual account", func(t *testing.T) {
-			testCase(t, "individual")
+			testCase(t, individual)
 		})
 
 		t.Run("with an organization account", func(t *testing.T) {
-			t.Skip("organization account not supported for this operation")
+			testCase(t, organization)
 		})
 
 	})
