@@ -58,8 +58,6 @@ func skipUnlessMode(t *testing.T, providerMode string) {
 		} else {
 			t.Log("GITHUB_TOKEN and GITHUB_ORGANIZATION environment variables should be set")
 		}
-	default:
-		t.Fatal("failed to determine provider mode during pre-check")
 	}
 
 	t.Skipf("Skipping %s which requires %s mode", t.Name(), providerMode)
