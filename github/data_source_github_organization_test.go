@@ -47,8 +47,8 @@ func TestAccGithubOrganizationDataSource(t *testing.T) {
 			testCase("individual")
 		})
 
-		t.Run("with an individual account", func(t *testing.T) {
-			testCase("organization")
+		t.Run("with an organization account", func(t *testing.T) {
+			t.Skip("organization account not supported for this operation")
 		})
 
 	})
