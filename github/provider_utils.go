@@ -62,7 +62,7 @@ func skipUnlessMode(t *testing.T, providerMode string) {
 		t.Fatal("failed to determine provider mode during pre-check")
 	}
 
-	t.Skipf("Skipping %s when in %s mode", t.Name(), providerMode)
+	t.Skipf("Skipping %s which requires %s mode", t.Name(), providerMode)
 }
 
 func testAccCheckOrganization() error {
