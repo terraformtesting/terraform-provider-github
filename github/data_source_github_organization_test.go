@@ -28,7 +28,7 @@ func TestAccGithubOrganizationDataSource(t *testing.T) {
 
 		testCase := func(mode string) {
 			resource.Test(t, resource.TestCase{
-				PreCheck:  func() { skipUnlessMode(t, mode) },
+				// PreCheck:  func() { skipUnlessMode(t, mode) },
 				Providers: testAccProviders,
 				Steps: []resource.TestStep{
 					{
