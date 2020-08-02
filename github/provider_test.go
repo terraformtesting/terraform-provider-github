@@ -79,9 +79,11 @@ func TestAccProviderConfigure(t *testing.T) {
 		// Point provider to mock API with self-signed cert
 		os.Setenv("GITHUB_BASE_URL", url)
 
-		providerConfig := `provider "github" {}`
-
-		username := "hashibot"
+		config := fmt.Sprintf(`
+			data "github_user" "test" {
+				username = "%s"
+			}
+		`, "hashibot")
 
 		testCase := func(mode string) {
 			resource.Test(t, resource.TestCase{
@@ -89,7 +91,7 @@ func TestAccProviderConfigure(t *testing.T) {
 				Providers: testAccProviders,
 				Steps: []resource.TestStep{
 					{
-						Config:      providerConfig + testAccCheckGithubUserDataSourceConfig(username),
+						Config:      config,
 						ExpectError: regexp.MustCompile("x509: certificate is valid for untrusted, not localhost"),
 					},
 				},
