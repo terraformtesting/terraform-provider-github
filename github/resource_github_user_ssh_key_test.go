@@ -7,64 +7,108 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/google/go-github/v31/github"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccGithubUserSshKey_basic(t *testing.T) {
-	var key github.Key
+func TestAccGithubUserSshKey(t *testing.T) {
 
-	rn := "github_user_ssh_key.test"
-	randString := acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
-	title := fmt.Sprintf("tf-acc-test-%s", randString)
-	keyRe := regexp.MustCompile("^ecdsa-sha2-nistp384 ")
-	urlRe := regexp.MustCompile("^https://api.github.com/[a-z0-9]+/keys/")
+	t.Run("creates and destroys a user SSH key without error", func(t *testing.T) {
 
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGithubUserSshKeyDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccGithubUserSshKeyConfig(title),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGithubUserSshKeyExists(rn, &key),
-					resource.TestCheckResourceAttr(rn, "title", title),
-					resource.TestMatchResourceAttr(rn, "key", keyRe),
-					resource.TestMatchResourceAttr(rn, "url", urlRe),
-				),
-			},
-			{
-				ResourceName:      rn,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
+		keyRe := regexp.MustCompile("^ecdsa-sha2-nistp384 ")
+		urlRe := regexp.MustCompile("^https://api.github.com/[a-z0-9]+/keys/")
+		title := fmt.Sprintf("tf-acc-test-%s",
+			acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum))
+		config := fmt.Sprintf(`
+			resource "github_user_ssh_key" "test" {
+				title = "%s"
+				key   = "%s""
+			}
+		`, title, testKey)
+
+		check := resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttr("github_user_ssh_key.test", "title", title),
+			resource.TestMatchResourceAttr("github_user_ssh_key.test", "key", keyRe),
+			resource.TestMatchResourceAttr("github_user_ssh_key.test", "url", urlRe),
+		)
+
+		testCase := func(t *testing.T, mode string) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:     func() { skipUnlessMode(t, mode) },
+				Providers:    testAccProviders,
+				CheckDestroy: testAccCheckGithubUserSshKeyDestroy,
+				Steps: []resource.TestStep{
+					{
+						Config: config,
+						Check:  check,
+					},
+				},
+			})
+		}
+
+		t.Run("with an anonymous account", func(t *testing.T) {
+			t.Skip("anonymous account not supported for this operation")
+		})
+
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase(t, individual)
+		})
+
+		t.Run("with an organization account", func(t *testing.T) {
+			t.Skip("anonymous account not supported for this operation")
+		})
+
 	})
-}
 
-func testAccCheckGithubUserSshKeyExists(n string, key *github.Key) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not Found: %s", n)
+	t.Run("imports an individual account SSH key without error", func(t *testing.T) {
+
+		title := fmt.Sprintf("tf-acc-test-%s",
+			acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum))
+		config := fmt.Sprintf(`
+			resource "github_user_ssh_key" "test" {
+				title = "%s"
+				key   = "%s""
+			}
+		`, title, testKey)
+
+		check := resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttrSet("github_user_ssh_key.test", "title"),
+			resource.TestCheckResourceAttrSet("github_user_ssh_key.test", "key"),
+			resource.TestCheckResourceAttrSet("github_user_ssh_key.test", "url"),
+		)
+
+		testCase := func(t *testing.T, mode string) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:  func() { skipUnlessMode(t, mode) },
+				Providers: testAccProviders,
+				Steps: []resource.TestStep{
+					{
+						Config: config,
+						Check:  check,
+					},
+					{
+						ResourceName:      "github_user_ssh_key.test",
+						ImportState:       true,
+						ImportStateVerify: true,
+					},
+				},
+			})
 		}
 
-		id, err := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		if err != nil {
-			return unconvertibleIdErr(rs.Primary.ID, err)
-		}
+		t.Run("with an anonymous account", func(t *testing.T) {
+			t.Skip("anonymous account not supported for this operation")
+		})
 
-		org := testAccProvider.Meta().(*Owner)
-		receivedKey, _, err := org.v3client.Users.GetKey(context.TODO(), id)
-		if err != nil {
-			return err
-		}
-		*key = *receivedKey
-		return nil
-	}
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase(t, individual)
+		})
+
+		t.Run("with an organization account", func(t *testing.T) {
+			testCase(t, organization)
+		})
+
+	})
 }
 
 func testAccCheckGithubUserSshKeyDestroy(s *terraform.State) error {
@@ -92,11 +136,4 @@ func testAccCheckGithubUserSshKeyDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccGithubUserSshKeyConfig(title string) string {
-	return fmt.Sprintf(`
-resource "github_user_ssh_key" "test" {
-  title = "%s"
-  key   = "ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBM3cbPV+J02cSXUJ5pfUfQ839WfYbhmM44J8xCslmZeyGVvql+wdfVoKCToh4N6zokCVkBDgnPL2oWnuyqYL7W2vOUiZLt5USunQ/Ywg7ZVkT1ULiGslF2P72AZVrkoq9Q=="
-}
-`, title)
-}
+const testKey = "ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBM3cbPV+J02cSXUJ5pfUfQ839WfYbhmM44J8xCslmZeyGVvql+wdfVoKCToh4N6zokCVkBDgnPL2oWnuyqYL7W2vOUiZLt5USunQ/Ywg7ZVkT1ULiGslF2P72AZVrkoq9Q=="
