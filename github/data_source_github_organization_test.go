@@ -26,7 +26,7 @@ func TestAccGithubOrganizationDataSource(t *testing.T) {
 			resource.TestCheckResourceAttrSet("data.github_organization.test", "plan"),
 		)
 
-		testCase := func(mode string) {
+		testCase := func(t *testing.T, mode string) {
 			resource.Test(t, resource.TestCase{
 				PreCheck:  func() { skipUnlessMode(t, mode) },
 				Providers: testAccProviders,
@@ -44,7 +44,7 @@ func TestAccGithubOrganizationDataSource(t *testing.T) {
 		})
 
 		t.Run("with an individual account", func(t *testing.T) {
-			testCase("individual")
+			testCase(t, "individual")
 		})
 
 		t.Run("with an organization account", func(t *testing.T) {
