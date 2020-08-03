@@ -18,7 +18,7 @@ jobs:
       - name: Acceptance Tests (Anonymous)
         uses: terraformtesting/acceptance-tests@v2.0.0
         with:
-          TF_LOG: DEBUG
+          RUN_ALL: true
           GITHUB_BASE_URL: "https://terraformtesting-ghe.eastus.cloudapp.azure.com/"
 
   acceptance-tests-individual:
