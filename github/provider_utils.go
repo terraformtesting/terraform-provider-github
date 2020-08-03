@@ -40,19 +40,32 @@ func testAccPreCheck(t *testing.T) {
 
 func skipUnlessMode(t *testing.T, providerMode string) {
 	switch providerMode {
-	case "anonymous":
+	case dotcom:
+		if os.Getenv("GITHUB_BASE_URL") != "" &&
+			os.Getenv("GITHUB_BASE_URL") != "https://api.github.com/" {
+			return
+		} else {
+			t.Log("GHES_BASE_URL environment variable should be non-empty")
+		}
+	case ghes:
+		if os.Getenv("GHES_BASE_URL") == "" {
+			return
+		} else {
+			t.Log("GHES_BASE_URL environment variable should be non-empty")
+		}
+	case anonymous:
 		if os.Getenv("GITHUB_TOKEN") == "" {
 			return
 		} else {
 			t.Log("GITHUB_TOKEN environment variable should be empty")
 		}
-	case "individual":
+	case individual:
 		if os.Getenv("GITHUB_TOKEN") != "" || os.Getenv("GITHUB_OWNER") != "" {
 			return
 		} else {
 			t.Log("GITHUB_TOKEN and GITHUB_OWNER environment variables should be set")
 		}
-	case "organization":
+	case organization:
 		if os.Getenv("GITHUB_TOKEN") != "" || os.Getenv("GITHUB_ORGANIZATION") != "" {
 			return
 		} else {
@@ -222,6 +235,8 @@ func OwnerOrOrgEnvDefaultFunc() (interface{}, error) {
 	return os.Getenv("GITHUB_OWNER"), nil
 }
 
+const dotcom = "dotcom"
+const ghes = "ges"
 const anonymous = "anonymous"
 const individual = "individual"
 const organization = "organization"
