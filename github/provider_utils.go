@@ -10,7 +10,7 @@ import (
 var testUser string = os.Getenv("GITHUB_TEST_USER")
 var testCollaborator string = os.Getenv("GITHUB_TEST_COLLABORATOR")
 var isEnterprise string = os.Getenv("ENTERPRISE_ACCOUNT")
-var testOrganization string = os.Getenv("GITHUB_ORGANIZATION")
+var testOrganization string = testOrganizationFunc()
 var testOwner string = os.Getenv("GITHUB_OWNER")
 var testToken string = os.Getenv("GITHUB_TOKEN")
 
@@ -226,6 +226,14 @@ func OwnerOrOrgEnvDefaultFunc() (interface{}, error) {
 		return os.Getenv("GITHUB_ORGANIZATION"), nil
 	}
 	return os.Getenv("GITHUB_OWNER"), nil
+}
+
+func testOrganizationFunc() string {
+	organization := os.Getenv("GITHUB_ORGANIZATION")
+	if organization == "" {
+		organization = os.Getenv("GITHUB_TEST_ORGANIZATION")
+	}
+	return organization
 }
 
 const anonymous = "anonymous"
