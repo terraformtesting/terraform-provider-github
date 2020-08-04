@@ -29,9 +29,10 @@ jobs:
       - name: Acceptance Tests (Individual)
         uses: terraformtesting/acceptance-tests@v2.0.0
         with:
-          TF_LOG: INFO
+          TF_LOG: DEBUG
           GITHUB_OWNER: github-terraform-test-user
           GITHUB_TEST_USER_TOKEN: ${{ secrets.GITHUB_TEST_USER_TOKEN }}
+          GITHUB_TEST_ORGANIZATION: terraformtesting
 
   acceptance-tests-organization:
     runs-on: ubuntu-latest
@@ -46,3 +47,4 @@ jobs:
         with:
           GITHUB_ORGANIZATION: terraformtesting
           GITHUB_TEST_USER_TOKEN: ${{ secrets.GITHUB_TEST_USER_TOKEN }}
+          GITHUB_TEST_ORGANIZATION: terraformtesting
