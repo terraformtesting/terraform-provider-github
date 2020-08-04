@@ -19,7 +19,7 @@ func TestAccGithubRepositoriesDataSource(t *testing.T) {
 
 		check := resource.ComposeTestCheckFunc(
 			resource.TestMatchResourceAttr("data.github_repositories.test", "full_names.0", regexp.MustCompile(`^`+testOrganization)),
-			resource.TestMatchResourceAttr("data.github_repositories.test", "names.0", regexp.MustCompile(`^botupdate`)),
+			resource.TestCheckResourceAttrSet("data.github_repositories.test", "names.0"),
 			resource.TestCheckResourceAttr("data.github_repositories.test", "sort", "updated"),
 		)
 
