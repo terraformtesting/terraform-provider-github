@@ -74,7 +74,6 @@ func TestAccGithubRepositories(t *testing.T) {
 			resource "github_repository" "test" {
 			  name         = "tf-acc-test-%[1]s"
 			  description  = "Terraform acceptance tests %[1]s"
-			  visibility 	 = "public"
 			}
 		`, randomID)
 
