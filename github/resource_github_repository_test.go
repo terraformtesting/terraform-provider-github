@@ -22,17 +22,6 @@ func TestAccGithubRepositories(t *testing.T) {
 
 			  name         = "tf-acc-test-%[1]s"
 			  description  = "Terraform acceptance tests %[1]s"
-			  homepage_url = "http://example.com/"
-			  visibility = "public"
-				is_template        = false
-
-			  has_issues         = true
-			  has_wiki           = true
-			  has_downloads      = true
-			  allow_merge_commit = true
-			  allow_squash_merge = false
-			  allow_rebase_merge = false
-			  auto_init          = false
 
 			}
 		`, randomID)
