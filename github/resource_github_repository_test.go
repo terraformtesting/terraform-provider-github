@@ -18,7 +18,7 @@ func TestAccGithubRepositories(t *testing.T) {
 	t.Run("creates and updates repositories without error", func(t *testing.T) {
 
 		config := fmt.Sprintf(`
-			resource "github_repository" "foo" {
+			resource "github_repository" "test" {
 
 			  name         = "tf-acc-test-%[1]s"
 			  description  = "Terraform acceptance tests %[1]s"
@@ -27,7 +27,7 @@ func TestAccGithubRepositories(t *testing.T) {
 		`, randomID)
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("resource.github_repository.foo", "has_issues", "false"),
+			resource.TestCheckResourceAttr("resource.github_repository.test", "has_issues", "false"),
 		)
 
 		testCase := func(t *testing.T, mode string) {
