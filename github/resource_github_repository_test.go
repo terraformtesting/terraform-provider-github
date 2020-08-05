@@ -122,7 +122,7 @@ func TestAccGithubRepositories(t *testing.T) {
 		`, randomID)
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("github_repository.test", "has_issues", "true"),
+			resource.TestCheckResourceAttr("github_repository.test", "archived", "false"),
 		)
 
 		testCase := func(t *testing.T, mode string) {
