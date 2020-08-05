@@ -14,7 +14,7 @@ func TestAccGithubRepositoriesDataSource(t *testing.T) {
 
 		config := fmt.Sprintf(`
 			data "github_repositories" "test" {
-				query = "org:%s repository:test-repo"
+				query = "org:%s"
 			}
 		`, testOrganization)
 
