@@ -23,11 +23,19 @@ func TestAccGithubRepositories(t *testing.T) {
 			  name         = "tf-acc-test-%[1]s"
 			  description  = "Terraform acceptance tests %[1]s"
 
+			  has_issues         = true
+			  has_wiki           = true
+			  has_downloads      = true
+			  allow_merge_commit = true
+			  allow_squash_merge = false
+			  allow_rebase_merge = false
+			  auto_init          = false
+
 			}
 		`, randomID)
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("resource.github_repository.test", "has_issues", "false"),
+			resource.TestCheckResourceAttr("github_repository.test", "has_issues", "false"),
 		)
 
 		testCase := func(t *testing.T, mode string) {
