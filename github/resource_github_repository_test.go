@@ -75,7 +75,7 @@ func TestAccGithubRepositories(t *testing.T) {
 		`, randomID)
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttrSet("resource.github_repository.test", "name"),
+			resource.TestCheckResourceAttrSet("github_repository.test", "name"),
 		)
 
 		testCase := func(t *testing.T, mode string) {
