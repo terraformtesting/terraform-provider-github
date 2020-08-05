@@ -91,9 +91,9 @@ func TestAccGithubRepositories(t *testing.T) {
 						Check:  check,
 					},
 					{
-						ResourceName: "github_repository.test",
-						ImportState:  true,
-						// ImportStateVerify: true,
+						ResourceName:      "github_repository.test",
+						ImportState:       true,
+						ImportStateVerify: true,
 					},
 				},
 			})
