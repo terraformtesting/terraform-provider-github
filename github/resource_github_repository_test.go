@@ -172,6 +172,10 @@ func TestAccGithubRepositories(t *testing.T) {
 			resource.TestCheckResourceAttr("github_repository.test", "has_projects", "false"),
 		)
 
+		checkUpdated := resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttr("github_repository.test", "has_projects", "true"),
+		)
+
 		testCase := func(t *testing.T, mode string) {
 			resource.Test(t, resource.TestCase{
 				PreCheck:  func() { skipUnlessMode(t, mode) },
@@ -185,7 +189,8 @@ func TestAccGithubRepositories(t *testing.T) {
 						Config: strings.Replace(config,
 							`has_projects = false`,
 							`has_projects = true`, 1),
-						ExpectNonEmptyPlan: true,
+						Check: checkUpdated,
+						// ExpectNonEmptyPlan: true,
 					},
 				},
 			})
