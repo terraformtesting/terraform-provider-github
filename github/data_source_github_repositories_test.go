@@ -53,6 +53,9 @@ func TestAccGithubRepositoriesDataSource(t *testing.T) {
 
 	t.Run("returns an empty list given an invalid query", func(t *testing.T) {
 
+		// FIXME: Find a way to reduce amount of `GET /search/repositories`
+		t.Skip("Skipping due to API rate limits exceeding")
+
 		config := `
 			data "github_repositories" "test" {
 				query = "klsafj_23434_doesnt_exist"
