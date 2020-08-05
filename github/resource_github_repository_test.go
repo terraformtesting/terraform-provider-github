@@ -168,13 +168,14 @@ func TestAccGithubRepositories(t *testing.T) {
 			}
 		`, randomID)
 
-		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("github_repository.test", "has_projects", "false"),
-		)
-
-		checkUpdated := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("github_repository.test", "has_projects", "true"),
-		)
+		checks := map[string]resource.TestCheckFunc{
+			"before": resource.ComposeTestCheckFunc(
+				resource.TestCheckResourceAttr("github_repository.test", "has_projects", "false"),
+			),
+			"after": resource.ComposeTestCheckFunc(
+				resource.TestCheckResourceAttr("github_repository.test", "has_projects", "true"),
+			),
+		}
 
 		testCase := func(t *testing.T, mode string) {
 			resource.Test(t, resource.TestCase{
@@ -183,14 +184,13 @@ func TestAccGithubRepositories(t *testing.T) {
 				Steps: []resource.TestStep{
 					{
 						Config: config,
-						Check:  check,
+						Check:  checks["before"],
 					},
 					{
 						Config: strings.Replace(config,
 							`has_projects = false`,
 							`has_projects = true`, 1),
-						Check: checkUpdated,
-						// ExpectNonEmptyPlan: true,
+						Check: checks["after"],
 					},
 				},
 			})
