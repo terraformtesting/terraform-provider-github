@@ -10,6 +10,9 @@ import (
 
 func TestAccGithubRepositoriesDataSource(t *testing.T) {
 
+	// FIXME: Find a way to reduce amount of `GET /search/repositories`
+	t.Skip("Skipping due to API rate limits exceeding")
+
 	t.Run("queries a list of repositories without error", func(t *testing.T) {
 
 		config := fmt.Sprintf(`
