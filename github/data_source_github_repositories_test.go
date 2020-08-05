@@ -1,6 +1,7 @@
 package github
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -11,11 +12,11 @@ func TestAccGithubRepositoriesDataSource(t *testing.T) {
 
 	t.Run("queries a list of repositories without error", func(t *testing.T) {
 
-		config := `
+		config := fmt.Sprintf(`
 			data "github_repositories" "test" {
-				query = "repository:test-repo"
+				query = "org:%s repository:test-repo"
 			}
-		`
+		`, testOrganization)
 
 		check := resource.ComposeTestCheckFunc(
 			resource.TestMatchResourceAttr("data.github_repositories.test", "full_names.0", regexp.MustCompile(`^`+testOrganization)),
