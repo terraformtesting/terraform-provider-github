@@ -271,54 +271,44 @@ func TestAccGithubRepositories(t *testing.T) {
 
 	t.Run("manages the license and gitignore feature for a repository", func(t *testing.T) {
 
-		// config := fmt.Sprintf(`
-		// 			resource "github_repository" "test" {
-		// 				name           = "tf-acc-test-%[1]s"
-		// 				description    = "Terraform acceptance tests %[1]s"
-		// 				license_template   = "ms-pl"
-		// 				gitignore_template = "C++"
-		// 			}
-		// 		`, randomID)
-		//
-		// checks := map[string]resource.TestCheckFunc{
-		// 	"before": resource.ComposeTestCheckFunc(
-		// 		resource.TestCheckResourceAttr("github_repository.test", "default_branch", "master"),
-		// 	),
-		// 	"after": resource.ComposeTestCheckFunc(
-		// 		resource.TestCheckResourceAttr("github_repository.test", "default_branch", "default"),
-		// 	),
-		// }
-		//
-		// testCase := func(t *testing.T, mode string) {
-		// 	resource.Test(t, resource.TestCase{
-		// 		PreCheck:  func() { skipUnlessMode(t, mode) },
-		// 		Providers: testAccProviders,
-		// 		Steps: []resource.TestStep{
-		// 			{
-		// 				Config: config,
-		// 				Check:  checks["before"],
-		// 			},
-		// 			{
-		// 				Config: strings.Replace(config,
-		// 					`default_branch = "master"`,
-		// 					`default_branch = "default"`, 1),
-		// 				Check: checks["after"],
-		// 			},
-		// 		},
-		// 	})
-		// }
-		//
-		// t.Run("with an anonymous account", func(t *testing.T) {
-		// 	t.Skip("anonymous account not supported for this operation")
-		// })
-		//
-		// t.Run("with an individual account", func(t *testing.T) {
-		// 	testCase(t, individual)
-		// })
-		//
-		// t.Run("with an organization account", func(t *testing.T) {
-		// 	testCase(t, organization)
-		// })
+		config := fmt.Sprintf(`
+					resource "github_repository" "test" {
+						name           = "tf-acc-test-%[1]s"
+						description    = "Terraform acceptance tests %[1]s"
+						license_template   = "ms-pl"
+						gitignore_template = "C++"
+					}
+				`, randomID)
+
+		check := resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttr("github_repository.test", "license_template", "ms-pl"),
+			resource.TestCheckResourceAttr("github_repository.test", "gitignore_template", "C++"),
+		)
+
+		testCase := func(t *testing.T, mode string) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:  func() { skipUnlessMode(t, mode) },
+				Providers: testAccProviders,
+				Steps: []resource.TestStep{
+					{
+						Config: config,
+						Check:  check,
+					},
+				},
+			})
+		}
+
+		t.Run("with an anonymous account", func(t *testing.T) {
+			t.Skip("anonymous account not supported for this operation")
+		})
+
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase(t, individual)
+		})
+
+		t.Run("with an organization account", func(t *testing.T) {
+			testCase(t, organization)
+		})
 
 	})
 
