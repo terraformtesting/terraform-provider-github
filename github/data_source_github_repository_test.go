@@ -16,6 +16,7 @@ func TestAccGithubRepositoryDataSource(t *testing.T) {
 			data "github_repositories" "test" {
 				query = "org:%s"
 			}
+
 			data "github_repository" "test" {
 				full_name = data.github_repositories.test.full_names.0
 			}
