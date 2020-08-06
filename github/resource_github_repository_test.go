@@ -121,9 +121,14 @@ func TestAccGithubRepositories(t *testing.T) {
 			}
 		`, randomID)
 
-		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("github_repository.test", "archived", "false"),
-		)
+		checks := map[string]resource.TestCheckFunc{
+			"before": resource.ComposeTestCheckFunc(
+				resource.TestCheckResourceAttr("github_repository.test", "archived", "false"),
+			),
+			"after": resource.ComposeTestCheckFunc(
+				resource.TestCheckResourceAttr("github_repository.test", "archived", "true"),
+			),
+		}
 
 		testCase := func(t *testing.T, mode string) {
 			resource.Test(t, resource.TestCase{
@@ -132,13 +137,13 @@ func TestAccGithubRepositories(t *testing.T) {
 				Steps: []resource.TestStep{
 					{
 						Config: config,
-						Check:  check,
+						Check:  checks["before"],
 					},
 					{
 						Config: strings.Replace(config,
 							`archived     = false`,
 							`archived     = true`, 1),
-						ExpectNonEmptyPlan: true,
+						Check: checks["after"],
 					},
 				},
 			})
