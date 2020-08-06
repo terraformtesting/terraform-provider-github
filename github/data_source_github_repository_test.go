@@ -63,12 +63,12 @@ func TestAccGithubRepositoryDataSource(t *testing.T) {
 		config := map[string]string{
 			"no_match_name": `
 				data "github_repository" "no_match_name" {
-					name = "does_not_exist"
+					name = "owner/repo"
 				}
 			`,
 			"no_match_fullname": `
 				data "github_repository" "no_match_fullname" {
-					full_name = "does_not_exist"
+					full_name = "owner/repo"
 				}
 			`,
 		}
