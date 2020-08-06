@@ -221,7 +221,7 @@ func TestAccGithubRepositories(t *testing.T) {
 			resource "github_repository" "test" {
 			  name           = "tf-acc-test-%[1]s"
 			  description    = "Terraform acceptance tests %[1]s"
-				default_branch = "development"
+				default_branch = "master"
 			}
 		`, randomID)
 
@@ -245,8 +245,8 @@ func TestAccGithubRepositories(t *testing.T) {
 					},
 					{
 						Config: strings.Replace(config,
-							`default_branch = "development"`,
-							`default_branch = "staging"`, 1),
+							`default_branch = "master"`,
+							`default_branch = "default"`, 1),
 						Check: checks["after"],
 					},
 				},
