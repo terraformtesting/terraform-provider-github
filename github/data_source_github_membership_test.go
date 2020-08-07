@@ -15,8 +15,9 @@ func TestAccGithubMembershipDataSource(t *testing.T) {
 		config := fmt.Sprintf(`
 			data "github_membership" "test" {
 				username = "%s"
+				organization = "%s"
 			}
-		`, testOwner)
+		`, testOwner, testOrganization)
 
 		check := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr("data.github_membership.test", "username", testOwner),
@@ -56,8 +57,9 @@ func TestAccGithubMembershipDataSource(t *testing.T) {
 		config := fmt.Sprintf(`
 			data "github_membership" "test" {
 				username = "%s"
+				organization = "%s"
 			}
-		`, "!"+testOwner)
+		`, "!"+testOwner, testOrganization)
 
 		testCase := func(t *testing.T, mode string) {
 			resource.Test(t, resource.TestCase{
