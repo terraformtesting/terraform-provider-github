@@ -236,6 +236,14 @@ func testOrganizationFunc() string {
 	return organization
 }
 
+func testOwnerFunc() string {
+	owner := os.Getenv("GITHUB_OWNER")
+	if owner == "" {
+		owner = os.Getenv("GITHUB_TEST_OWNER")
+	}
+	return owner
+}
+
 const anonymous = "anonymous"
 const individual = "individual"
 const organization = "organization"
