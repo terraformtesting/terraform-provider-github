@@ -2,7 +2,6 @@ package github
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -36,15 +35,11 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 		`, randomID)
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestMatchResourceAttr(
-				"github_repository_webhook.test",
-				"armored_public_key",
-				regexp.MustCompile("^-----BEGIN PGP PUBLIC KEY BLOCK-----"),
+			resource.TestCheckResourceAttr(
+				"github_repository_webhook.test", "active", "true",
 			),
 			resource.TestCheckResourceAttr(
-				"github_repository_webhook.test",
-				"key_id",
-				"AC541D2D1709CD33",
+				"github_repository_webhook.test", "events.#", "1",
 			),
 		)
 
