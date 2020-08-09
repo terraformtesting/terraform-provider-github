@@ -17,13 +17,13 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 
 		config := fmt.Sprintf(`
 			resource "github_repository" "test" {
-			  name         = "test-%s"
+			  name         = "test-%[1]s"
 			  description  = "Terraform acceptance tests"
 			}
 
 			resource "github_repository_webhook" "test" {
 			  depends_on = ["github_repository.test"]
-			  repository = "test-%s"
+			  repository = "test-%[1]s"
 
 			  configuration {
 			    url          = "https://google.de/webhook"
