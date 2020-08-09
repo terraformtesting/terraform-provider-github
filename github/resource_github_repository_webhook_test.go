@@ -103,9 +103,10 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 						Check:  check,
 					},
 					{
-						ResourceName:      "github_repository_webhook.test",
-						ImportState:       true,
-						ImportStateVerify: true,
+						ResourceName:        "github_repository_webhook.test",
+						ImportState:         true,
+						ImportStateVerify:   true,
+						ImportStateIdPrefix: fmt.Sprintf("test-%s/", randomID),
 					},
 				},
 			})
