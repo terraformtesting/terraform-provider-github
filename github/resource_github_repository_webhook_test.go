@@ -2,7 +2,6 @@ package github
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -127,26 +126,48 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 	})
 
 	t.Run("updates repository webhooks without error", func(t *testing.T) {
-		config := fmt.Sprintf(`
-			resource "github_repository" "test" {
-			  name         = "test-%[1]s"
-			  description  = "Terraform acceptance tests"
-			}
 
-			resource "github_repository_webhook" "test" {
-			  depends_on = ["github_repository.test"]
-			  repository = "test-%[1]s"
+		configs := map[string]string{
+			"before": fmt.Sprintf(`
+				resource "github_repository" "test" {
+				  name         = "test-%[1]s"
+				  description  = "Terraform acceptance tests"
+				}
 
-			  configuration {
-			    secret       = "%[1]s"
-			    url          = "https://google.de/webhook"
-			    content_type = "json"
-			    insecure_ssl = true
-			  }
+				resource "github_repository_webhook" "test" {
+				  depends_on = ["github_repository.test"]
+				  repository = "test-%[1]s"
 
-			  events = ["pull_request"]
-			}
-		`, randomID)
+				  configuration {
+				    url          = "https://google.de/webhook"
+				    content_type = "json"
+				    insecure_ssl = true
+				  }
+
+				  events = ["pull_request"]
+				}
+			`, randomID),
+			"after": fmt.Sprintf(`
+				resource "github_repository" "test" {
+				  name         = "test-%[1]s"
+				  description  = "Terraform acceptance tests"
+				}
+
+				resource "github_repository_webhook" "test" {
+				  depends_on = ["github_repository.test"]
+				  repository = "test-%[1]s"
+
+				  configuration {
+				    secret       = "%[1]s"
+				    url          = "https://google.de/webhook"
+				    content_type = "json"
+				    insecure_ssl = true
+				  }
+
+				  events = ["pull_request"]
+				}
+			`, randomID),
+		}
 
 		checks := map[string]resource.TestCheckFunc{
 			"before": resource.TestCheckResourceAttr(
@@ -163,14 +184,12 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 				Providers: testAccProviders,
 				Steps: []resource.TestStep{
 					{
-						Config: config,
+						Config: configs["before"],
 						Check:  checks["before"],
 					},
 					{
-						Config: strings.Replace(config,
-							`secret       = "%[1]s"`,
-							`secret       = "!%[1]s"`, 1),
-						Check: checks["after"],
+						Config: configs["after"],
+						Check:  checks["after"],
 					},
 				},
 			})
