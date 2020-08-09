@@ -2,6 +2,7 @@ package github
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -12,7 +13,7 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 
 	randomID := acctest.RandStringFromCharSet(5, acctest.CharSetAlphaNum)
 
-	t.Run("creates and updates repository webhooks without error", func(t *testing.T) {
+	t.Run("creates repository webhooks without error", func(t *testing.T) {
 
 		config := fmt.Sprintf(`
 			resource "github_repository" "test" {
@@ -124,7 +125,7 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 
 	})
 
-	t.Run("configures repository webhooks using a random secret", func(t *testing.T) {
+	t.Run("updates repository webhooks without error", func(t *testing.T) {
 		config := fmt.Sprintf(`
 			resource "github_repository" "test" {
 			  name         = "test-%[1]s"
@@ -136,6 +137,7 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 			  repository = "test-%[1]s"
 
 			  configuration {
+			    secret       = "%[1]s"
 			    url          = "https://google.de/webhook"
 			    content_type = "json"
 			    insecure_ssl = true
@@ -145,14 +147,14 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 			}
 		`, randomID)
 
-		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr(
-				"github_repository_webhook.test", "active", "true",
-			),
-			resource.TestCheckResourceAttr(
+		checks := map[string]resource.TestCheckFunc{
+			"before": resource.TestCheckResourceAttr(
 				"github_repository_webhook.test", "events.#", "1",
 			),
-		)
+			"after": resource.TestCheckResourceAttr(
+				"github_repository_webhook.test", "events.#", "2",
+			),
+		}
 
 		testCase := func(t *testing.T, mode string) {
 			resource.Test(t, resource.TestCase{
@@ -161,7 +163,13 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 				Steps: []resource.TestStep{
 					{
 						Config: config,
-						Check:  check,
+						Check:  checks["before"],
+					},
+					{
+						Config: strings.Replace(config,
+							`secret       = "%[1]s"`,
+							`secret       = "!%[1]s"`, 1),
+						Check: checks["after"],
 					},
 				},
 			})
