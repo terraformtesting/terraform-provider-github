@@ -125,6 +125,59 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 	})
 
 	t.Run("configures repository webhooks using a random secret", func(t *testing.T) {
+		config := fmt.Sprintf(`
+			resource "github_repository" "test" {
+			  name         = "test-%[1]s"
+			  description  = "Terraform acceptance tests"
+			}
+
+			resource "github_repository_webhook" "test" {
+			  depends_on = ["github_repository.test"]
+			  repository = "test-%[1]s"
+
+			  configuration {
+			    url          = "https://google.de/webhook"
+			    content_type = "json"
+			    insecure_ssl = true
+			  }
+
+			  events = ["pull_request"]
+			}
+		`, randomID)
+
+		check := resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttr(
+				"github_repository_webhook.test", "active", "true",
+			),
+			resource.TestCheckResourceAttr(
+				"github_repository_webhook.test", "events.#", "1",
+			),
+		)
+
+		testCase := func(t *testing.T, mode string) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:  func() { skipUnlessMode(t, mode) },
+				Providers: testAccProviders,
+				Steps: []resource.TestStep{
+					{
+						Config: config,
+						Check:  check,
+					},
+				},
+			})
+		}
+
+		t.Run("with an anonymous account", func(t *testing.T) {
+			t.Skip("anonymous account not supported for this operation")
+		})
+
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase(t, individual)
+		})
+
+		t.Run("with an organization account", func(t *testing.T) {
+			testCase(t, organization)
+		})
 	})
 }
 
