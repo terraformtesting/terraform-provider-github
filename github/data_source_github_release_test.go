@@ -22,6 +22,7 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 				repository = github_repository.test.id
 				owner = github_repository.test.owner
 				retrieve_by = "id"
+				release_id = "none"
 			}
 		`
 		testCase := func(t *testing.T, mode string) {
