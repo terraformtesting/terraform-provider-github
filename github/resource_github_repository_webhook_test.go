@@ -174,7 +174,7 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 				"github_repository_webhook.test", "events.#", "1",
 			),
 			"after": resource.TestCheckResourceAttr(
-				"github_repository_webhook.test", "configuration.0.secret", "2",
+				"github_repository_webhook.test", "configuration.0.secret", "secret",
 			),
 		}
 
