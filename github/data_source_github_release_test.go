@@ -20,6 +20,7 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 
 			data "github_release" "test" {
 				repository = github_repository.test.id
+				owner = github_repository.test.owner
 				retrieve_by = "id"
 			}
 		`
