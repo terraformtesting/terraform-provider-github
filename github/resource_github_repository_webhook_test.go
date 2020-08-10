@@ -158,7 +158,7 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 				  repository = "test-%[1]s"
 
 				  configuration {
-				    secret       = "%[1]s"
+				    secret       = "secret"
 				    url          = "https://google.de/webhook"
 				    content_type = "json"
 				    insecure_ssl = true
@@ -174,7 +174,7 @@ func TestAccGithubRepositoryWebhook(t *testing.T) {
 				"github_repository_webhook.test", "events.#", "1",
 			),
 			"after": resource.TestCheckResourceAttr(
-				"github_repository_webhook.test", "events.#", "2",
+				"github_repository_webhook.test", "configuration.0.secret", "2",
 			),
 		}
 
