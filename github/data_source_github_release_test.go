@@ -9,6 +9,47 @@ import (
 
 func TestAccGithubReleaseDataSource(t *testing.T) {
 
+	t.Run("errors when querying with non-existent ID", func(t *testing.T) {
+
+		config := `
+			resource "github_repository" "test" {
+			  name         = "tf-acc-test-%[1]s"
+			  description  = "Terraform acceptance tests %[1]s"
+				auto_init 	 = true
+			}
+
+			data "github_release" "test" {
+				repository = github_repository.test.id
+				retrieve_by = "id"
+			}
+		`
+		testCase := func(t *testing.T, mode string) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:  func() { skipUnlessMode(t, mode) },
+				Providers: testAccProviders,
+				Steps: []resource.TestStep{
+					{
+						Config:      config,
+						ExpectError: regexp.MustCompile("`release_id` must be set when `retrieve_by` = `id`"),
+					},
+				},
+			})
+		}
+
+		t.Run("with an anonymous account", func(t *testing.T) {
+			testCase(t, anonymous)
+		})
+
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase(t, individual)
+		})
+
+		t.Run("with an organization account", func(t *testing.T) {
+			testCase(t, organization)
+		})
+
+	})
+
 	t.Run("errors when querying with non-existent repository", func(t *testing.T) {
 
 		config := `
@@ -46,24 +87,6 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 	})
 }
 
-// func TestAccGithubReleaseDataSource_fetchByLatestNoReleaseReturnsError(t *testing.T) {
-// 	repo := "nonExistentRepo"
-// 	owner := "no-user"
-// 	retrieveBy := "latest"
-// 	resource.ParallelTest(t, resource.TestCase{
-// 		PreCheck: func() {
-// 			testAccPreCheck(t)
-// 		},
-// 		Providers: testAccProviders,
-// 		Steps: []resource.TestStep{
-// 			{
-// 				Config:      testAccCheckGithubReleaseDataSourceConfig(repo, owner, retrieveBy, "", 0),
-// 				ExpectError: regexp.MustCompile(`Not Found`),
-// 			},
-// 		},
-// 	})
-// }
-//
 // func TestAccGithubReleaseDataSource_latestExisting(t *testing.T) {
 // 	if err := testAccCheckOrganization(); err != nil {
 // 		t.Skipf("Skipping because %s.", err.Error())
@@ -90,23 +113,7 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 // 		},
 // 	})
 // }
-//
-// func TestAccGithubReleaseDataSource_fetchByIdWithNoIdReturnsError(t *testing.T) {
-// 	retrieveBy := "id"
-// 	resource.ParallelTest(t, resource.TestCase{
-// 		PreCheck: func() {
-// 			testAccPreCheck(t)
-// 		},
-// 		Providers: testAccProviders,
-// 		Steps: []resource.TestStep{
-// 			{
-// 				Config:      testAccCheckGithubReleaseDataSourceConfig("", "", retrieveBy, "", 0),
-// 				ExpectError: regexp.MustCompile("`release_id` must be set when `retrieve_by` = `id`"),
-// 			},
-// 		},
-// 	})
-// }
-//
+
 // func TestAccGithubReleaseDataSource_fetchByIdExisting(t *testing.T) {
 // 	if err := testAccCheckOrganization(); err != nil {
 // 		t.Skipf("Skipping because %s.", err.Error())
@@ -135,7 +142,7 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 // 		},
 // 	})
 // }
-//
+
 // func TestAccGithubReleaseDataSource_fetchByTagNoTagReturnsError(t *testing.T) {
 // 	repo := os.Getenv("GITHUB_TEMPLATE_REPOSITORY")
 // 	owner := os.Getenv("GITHUB_OWNER")
