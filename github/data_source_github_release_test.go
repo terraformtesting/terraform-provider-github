@@ -33,7 +33,7 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 		}
 
 		t.Run("with an anonymous account", func(t *testing.T) {
-			t.Skip("anonymous account not supported for this operation")
+			testCase(t, anonymous)
 		})
 
 		t.Run("with an individual account", func(t *testing.T) {
@@ -81,6 +81,43 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 		})
 
 	})
+
+	t.Run("errors when querying with non-existent tag", func(t *testing.T) {
+
+		config := `
+			data "github_release" "test" {
+				repository = "test"
+				owner = "test"
+				retrieve_by = "tag"
+			}
+		`
+		testCase := func(t *testing.T, mode string) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:  func() { skipUnlessMode(t, mode) },
+				Providers: testAccProviders,
+				Steps: []resource.TestStep{
+					{
+						Config:      config,
+						ExpectError: regexp.MustCompile("`release_tag` must be set when `retrieve_by` = `tag`"),
+					},
+				},
+			})
+		}
+
+		t.Run("with an anonymous account", func(t *testing.T) {
+			testCase(t, anonymous)
+		})
+
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase(t, individual)
+		})
+
+		t.Run("with an organization account", func(t *testing.T) {
+			testCase(t, organization)
+		})
+
+	})
+
 }
 
 // func TestAccGithubReleaseDataSource_latestExisting(t *testing.T) {
@@ -139,25 +176,6 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 // 	})
 // }
 
-// func TestAccGithubReleaseDataSource_fetchByTagNoTagReturnsError(t *testing.T) {
-// 	repo := os.Getenv("GITHUB_TEMPLATE_REPOSITORY")
-// 	owner := os.Getenv("GITHUB_OWNER")
-// 	retrieveBy := "tag"
-// 	id := int64(0)
-// 	resource.ParallelTest(t, resource.TestCase{
-// 		PreCheck: func() {
-// 			testAccPreCheck(t)
-// 		},
-// 		Providers: testAccProviders,
-// 		Steps: []resource.TestStep{
-// 			{
-// 				Config:      testAccCheckGithubReleaseDataSourceConfig(repo, owner, retrieveBy, "", id),
-// 				ExpectError: regexp.MustCompile("`release_tag` must be set when `retrieve_by` = `tag`"),
-// 			},
-// 		},
-// 	})
-// }
-//
 // func TestAccGithubReleaseDataSource_fetchByTagExisting(t *testing.T) {
 // 	if err := testAccCheckOrganization(); err != nil {
 // 		t.Skipf("Skipping because %s.", err.Error())
