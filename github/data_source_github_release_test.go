@@ -26,6 +26,7 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 				repository = github_repository.test.id
 				owner = "owner"
 				retrieve_by = "id"
+				release_id = "0"
 			}
 		`, randomID)
 
