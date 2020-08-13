@@ -1,33 +1,23 @@
 package github
 
 import (
-	"fmt"
 	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform/helper/acctest"
 )
 
 func TestAccGithubReleaseDataSource(t *testing.T) {
 
-	randomID := acctest.RandStringFromCharSet(5, acctest.CharSetAlphaNum)
-
 	t.Run("errors when querying with non-existent ID", func(t *testing.T) {
 
-		config := fmt.Sprintf(`
-			resource "github_repository" "test" {
-			  name         = "tf-acc-test-%s"
-			  description  = "Terraform acceptance tests %[1]s"
-				auto_init 	 = true
-			}
-
+		config := `
 			data "github_release" "test" {
-				repository = github_repository.test.id
+				repository = "torvalds/linux"
 				owner = "owner"
 				retrieve_by = "id"
 			}
-		`, randomID)
+		`
 
 		testCase := func(t *testing.T, mode string) {
 			resource.Test(t, resource.TestCase{
