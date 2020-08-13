@@ -17,7 +17,7 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 
 		config := fmt.Sprintf(`
 			resource "github_repository" "test" {
-			  name         = "tf-acc-test-%[1]s"
+			  name         = "tf-acc-test-%s"
 			  description  = "Terraform acceptance tests %[1]s"
 				auto_init 	 = true
 			}
@@ -26,7 +26,6 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 				repository = github_repository.test.id
 				owner = "owner"
 				retrieve_by = "id"
-				release_id = "0"
 			}
 		`, randomID)
 
