@@ -21,10 +21,10 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 
 		check := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(
-				"github_release.test", "active", "true",
+				"github_release.test", "tarball_url", "true",
 			),
 			resource.TestCheckResourceAttr(
-				"github_release.test", "events.#", "1",
+				"github_release.test", "id", "25117183",
 			),
 		)
 
