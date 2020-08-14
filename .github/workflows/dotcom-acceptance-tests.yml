@@ -35,8 +35,6 @@ jobs:
           GITHUB_OWNER: github-terraform-test-user
           GITHUB_TEST_USER_TOKEN: ${{ secrets.GITHUB_TEST_USER_TOKEN }}
           GITHUB_TEST_ORGANIZATION: terraformtesting
-          GITHUB_TEMPLATE_REPOSITORY: terraform-template-module
-          GITHUB_TEMPLATE_REPOSITORY_RELEASE_ID: 25117183
 
   acceptance-tests-organization:
     runs-on: ubuntu-latest
