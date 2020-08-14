@@ -13,18 +13,18 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 
 		config := `
 			data "github_release" "test" {
-				repository = "linux"
-				owner = "torvalds"
+				repository = "terraform-template-module"
+				owner = "terraformtesting"
 				retrieve_by = "latest"
 			}
 		`
 
 		check := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(
-				"github_repository_webhook.test", "active", "true",
+				"github_release.test", "active", "true",
 			),
 			resource.TestCheckResourceAttr(
-				"github_repository_webhook.test", "events.#", "1",
+				"github_release.test", "events.#", "1",
 			),
 		)
 
