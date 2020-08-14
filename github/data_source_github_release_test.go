@@ -153,8 +153,8 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 
 		config := `
 			data "github_release" "test" {
-				repository = "torvalds/linux"
-				owner = "owner"
+				repository = "test"
+				owner = "test"
 				retrieve_by = "id"
 			}
 		`
