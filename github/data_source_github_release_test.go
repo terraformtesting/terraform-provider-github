@@ -22,7 +22,7 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 				owner = "%s"
 				retrieve_by = "latest"
 			}
-		`, testReleaseRepository, testOwner)
+		`, testReleaseRepository, testOrganizationFunc())
 
 		check := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(
@@ -73,7 +73,7 @@ func TestAccGithubReleaseDataSource(t *testing.T) {
 				retrieve_by = "tag"
 				release_tag = data.github_release.by_id.release_tag
 			}
-		`, testReleaseRepository, testOwner, testReleaseID)
+		`, testReleaseRepository, testOrganizationFunc(), testReleaseID)
 
 		check := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(
