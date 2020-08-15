@@ -22,7 +22,7 @@ func TestAccGithubBranchDataSource(t *testing.T) {
 			}
 
 			data "github_branch" "test" {
-				repository = gihub_repository.test.id
+				repository = github_repository.test.id
 				branch = "master"
 			}
 		`, randomID)
