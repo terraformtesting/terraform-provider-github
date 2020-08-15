@@ -2,6 +2,7 @@ package github
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -27,8 +28,8 @@ func TestAccGithubBranch(t *testing.T) {
 		`, randomID)
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr(
-				"github_branch.test", "id", randomID,
+			resource.TestMatchResourceAttr(
+				"github_branch.test", "id", regexp.MustCompile(randomID),
 			),
 		)
 
@@ -80,8 +81,8 @@ func TestAccGithubBranch(t *testing.T) {
 		`, randomID)
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr(
-				"github_branch.test", "id", randomID,
+			resource.TestMatchResourceAttr(
+				"github_branch.test", "id", regexp.MustCompile(randomID),
 			),
 		)
 
