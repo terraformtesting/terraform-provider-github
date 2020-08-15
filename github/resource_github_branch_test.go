@@ -1,202 +1,92 @@
 package github
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
-	"github.com/google/go-github/v31/github"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
-func TestAccGithubBranch_basic(t *testing.T) {
-	var (
-		reference github.Reference
+func TestAccGithubBranch(t *testing.T) {
 
-		name   = "basic"
-		repo   = "test-repo"
-		branch = "test-branch-" + acctest.RandString(5)
-		ref    = "refs/heads/" + branch
-		rn     = "github_branch." + name
-		id     = repo + ":" + branch
-	)
+	randomID := acctest.RandStringFromCharSet(5, acctest.CharSetAlphaNum)
 
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGithubBranchDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCheckGithubBranchConfig(name, repo, branch),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGithubBranchExists(rn, id, &reference),
-					resource.TestCheckResourceAttr(rn, "repository", repo),
-					resource.TestCheckResourceAttr(rn, "branch", branch),
-					resource.TestCheckResourceAttr(rn, "source_branch", "master"),
-					resource.TestCheckResourceAttrSet(rn, "source_sha"),
-					resource.TestCheckResourceAttrSet(rn, "etag"),
-					resource.TestCheckResourceAttr(rn, "ref", ref),
-					resource.TestCheckResourceAttrSet(rn, "sha"),
-				),
-			},
-			{
-				Config: testAccCheckGithubBranchConfig(name, repo, branch),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGithubBranchExists(rn, id, &reference),
-					resource.TestCheckResourceAttr(rn, "repository", repo),
-					resource.TestCheckResourceAttr(rn, "branch", branch),
-					resource.TestCheckResourceAttr(rn, "source_branch", "master"),
-					resource.TestCheckResourceAttrSet(rn, "source_sha"),
-					resource.TestCheckResourceAttrSet(rn, "etag"),
-					resource.TestCheckResourceAttr(rn, "ref", ref),
-					resource.TestCheckResourceAttrSet(rn, "sha"),
-				),
-			},
-			{
-				ResourceName:      rn,
-				ImportState:       true,
-				ImportStateId:     fmt.Sprintf("%s:%s", repo, branch),
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"source_sha",
-				},
-			},
-		},
-	})
-}
-func TestAccGithubBranch_withSourceBranch(t *testing.T) {
-	var (
-		reference github.Reference
+	t.Run("creates a branch without error", func(t *testing.T) {
 
-		name         = "withSourceBranch"
-		repo         = "test-repo"
-		sourceBranch = "test-branch"
-		branch       = "test-branch-" + acctest.RandString(5)
-		ref          = "refs/heads/" + branch
-		rn           = "github_branch." + name
-		id           = repo + ":" + branch
-	)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckGithubBranchDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccCheckGithubBranchConfigWithSourceBranch(name, repo, sourceBranch, branch),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGithubBranchExists(rn, id, &reference),
-					resource.TestCheckResourceAttr(rn, "repository", repo),
-					resource.TestCheckResourceAttr(rn, "branch", branch),
-					resource.TestCheckResourceAttr(rn, "source_branch", sourceBranch),
-					resource.TestCheckResourceAttrSet(rn, "source_sha"),
-					resource.TestCheckResourceAttrSet(rn, "etag"),
-					resource.TestCheckResourceAttr(rn, "ref", ref),
-					resource.TestCheckResourceAttrSet(rn, "sha"),
-				),
-			},
-			{
-				Config: testAccCheckGithubBranchConfigWithSourceBranch(name, repo, sourceBranch, branch),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckGithubBranchExists(rn, id, &reference),
-					resource.TestCheckResourceAttr(rn, "repository", repo),
-					resource.TestCheckResourceAttr(rn, "branch", branch),
-					resource.TestCheckResourceAttr(rn, "source_branch", sourceBranch),
-					resource.TestCheckResourceAttrSet(rn, "source_sha"),
-					resource.TestCheckResourceAttrSet(rn, "etag"),
-					resource.TestCheckResourceAttr(rn, "ref", ref),
-					resource.TestCheckResourceAttrSet(rn, "sha"),
-				),
-			},
-			{
-				ResourceName:      rn,
-				ImportState:       true,
-				ImportStateId:     fmt.Sprintf("%s:%s:%s", repo, branch, sourceBranch),
-				ImportStateVerify: true,
-				ImportStateVerifyIgnore: []string{
-					"source_sha",
-				},
-			},
-		},
-	})
-}
-
-func testAccCheckGithubBranchConfig(name, repo, branch string) string {
-	return fmt.Sprintf(`
-resource "github_branch" "%s" {
-  repository = "%s"
-  branch     = "%s"
-}
-`, name, repo, branch)
-}
-
-func testAccCheckGithubBranchConfigWithSourceBranch(name, repo, sourceBranch, branch string) string {
-	return fmt.Sprintf(`
-resource "github_branch" "%s" {
-  repository    = "%s"
-  source_branch = "%s"
-  branch        = "%s"
-}
-`, name, repo, sourceBranch, branch)
-}
-
-func testAccCheckGithubBranchDestroy(s *terraform.State) error {
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "github_branch" {
-			continue
-		}
-
-		conn := testAccProvider.Meta().(*Owner).v3client
-		orgName := testAccProvider.Meta().(*Owner).name
-		repoName, branchName, err := parseTwoPartID(rs.Primary.ID, "repository", "branch")
-		if err != nil {
-			return err
-		}
-
-		ref, resp, err := conn.Git.GetRef(context.TODO(), orgName, repoName, branchName)
-		if err == nil {
-			if ref != nil {
-				return fmt.Errorf("Repository branch still exists %s/%s (%s)",
-					orgName, repoName, branchName)
+		config := fmt.Sprintf(`
+			resource "github_repository" "test" {
+			  name = "tf-acc-test-%s"
 			}
-		}
-		if resp.StatusCode != 404 {
-			return fmt.Errorf("Error destroying branch %s/%s (%s)",
-				orgName, repoName, branchName)
-		}
-		return nil
-	}
-	return nil
-}
+		`, randomID)
 
-func testAccCheckGithubBranchExists(n, id string, reference *github.Reference) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("Not found: %s", n)
-		}
+		check := resource.ComposeTestCheckFunc(
+		// resource.TestCheckResourceAttr("github_actions_secret.test_secret", "plaintext_value", secretValue),
+		// resource.TestCheckResourceAttrSet("github_actions_secret.test_secret", "created_at"),
+		// resource.TestCheckResourceAttrSet("github_actions_secret.test_secret", "updated_at"),
+		)
 
-		if rs.Primary.ID != id {
-			return fmt.Errorf("Expected ID to be %v, got %v", id, rs.Primary.ID)
-		}
-
-		conn := testAccProvider.Meta().(*Owner).v3client
-		orgName := testAccProvider.Meta().(*Owner).name
-		repoName, branchName, err := parseTwoPartID(rs.Primary.ID, "repository", "branch")
-		if err != nil {
-			return err
+		testCase := func(t *testing.T, mode string) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:  func() { skipUnlessMode(t, mode) },
+				Providers: testAccProviders,
+				Steps: []resource.TestStep{
+					{
+						Config: config,
+						Check:  check,
+					},
+				},
+			})
 		}
 
-		branchRefName := "refs/heads/" + branchName
-		ref, _, err := conn.Git.GetRef(context.TODO(), orgName, repoName, branchRefName)
-		if err != nil {
-			return fmt.Errorf("Error querying GitHub branch reference %s/%s (%s): %s",
-				orgName, repoName, branchRefName, err)
+		t.Run("with an anonymous account", func(t *testing.T) {
+			t.Skip("anonymous account not supported for this operation")
+		})
+
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase(t, individual)
+		})
+
+		t.Run("with an organization account", func(t *testing.T) {
+			testCase(t, organization)
+		})
+
+	})
+
+	t.Run("deletes a branch without error", func(t *testing.T) {
+
+		config := fmt.Sprintf(`
+			resource "github_repository" "test" {
+			  name = "tf-acc-test-%s"
+			}
+		`, randomID)
+
+		testCase := func(t *testing.T, mode string) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:  func() { skipUnlessMode(t, mode) },
+				Providers: testAccProviders,
+				Steps: []resource.TestStep{
+					{
+						Config:             config,
+						Destroy:            true,
+						ExpectNonEmptyPlan: true,
+					},
+				},
+			})
 		}
 
-		*reference = *ref
-		return nil
-	}
+		t.Run("with an anonymous account", func(t *testing.T) {
+			t.Skip("anonymous account not supported for this operation")
+		})
+
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase(t, individual)
+		})
+
+		t.Run("with an organization account", func(t *testing.T) {
+			testCase(t, organization)
+		})
+
+	})
+
 }
