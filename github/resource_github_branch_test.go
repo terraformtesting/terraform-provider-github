@@ -17,6 +17,7 @@ func TestAccGithubBranch(t *testing.T) {
 		config := fmt.Sprintf(`
 			resource "github_repository" "test" {
 			  name = "tf-acc-test-%[1]s"
+				auto_init = true
 			}
 
 			resource "github_branch" "test" {
@@ -72,6 +73,7 @@ func TestAccGithubBranch(t *testing.T) {
 	// 	config := fmt.Sprintf(`
 	// 		resource "github_repository" "test" {
 	// 		  name = "tf-acc-test-%s"
+	// auto_init = true
 	// 		}
 	//
 	// 		resource "github_branch" "test" {
