@@ -75,7 +75,7 @@ func TestAccGithubBranch(t *testing.T) {
 
 			resource "github_branch" "test" {
 			  repository 		= github_repository.test.id
-			  source_branch = github_branch.source.id
+			  source_branch = github_branch.source.branch
 			  branch        = "tf-acc-test-%[1]s"
 			}
 		`, randomID)
