@@ -12,18 +12,32 @@ func TestAccGithubBranch(t *testing.T) {
 
 	randomID := acctest.RandStringFromCharSet(5, acctest.CharSetAlphaNum)
 
-	t.Run("creates a branch without error", func(t *testing.T) {
+	t.Run("creates a branch directly or from a source", func(t *testing.T) {
 
 		config := fmt.Sprintf(`
 			resource "github_repository" "test" {
-			  name = "tf-acc-test-%s"
+			  name = "tf-acc-test-%[1]s"
+			}
+
+			resource "github_branch" "test" {
+			  repository = github_repository.test.id
+			  branch     = "tf-acc-test-%[1]s"
+			}
+
+			resource "github_branch" "test_from_source_branch" {
+			  repository = github_repository.test.id
+			  source_branch = "tf-acc-test-%[1]s"
+			  branch        = "tf-acc-test-%[1]s-from-source"
 			}
 		`, randomID)
 
 		check := resource.ComposeTestCheckFunc(
-		// resource.TestCheckResourceAttr("github_actions_secret.test_secret", "plaintext_value", secretValue),
-		// resource.TestCheckResourceAttrSet("github_actions_secret.test_secret", "created_at"),
-		// resource.TestCheckResourceAttrSet("github_actions_secret.test_secret", "updated_at"),
+			resource.TestCheckResourceAttr(
+				"github_branch.test", "id", randomID,
+			),
+			resource.TestCheckResourceAttr(
+				"github_branch.test_from_source_branch", "id", randomID,
+			),
 		)
 
 		testCase := func(t *testing.T, mode string) {
@@ -58,6 +72,11 @@ func TestAccGithubBranch(t *testing.T) {
 		config := fmt.Sprintf(`
 			resource "github_repository" "test" {
 			  name = "tf-acc-test-%s"
+			}
+
+			resource "github_branch" "test" {
+				repository = github_repository.test.id
+				branch     = "tf-acc-test-%[1]s"
 			}
 		`, randomID)
 
