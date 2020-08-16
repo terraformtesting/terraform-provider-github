@@ -27,8 +27,8 @@ func TestAccGithubActionsSecret(t *testing.T) {
 		`, testRepo)
 
 		check := resource.ComposeAggregateTestCheckFunc(
-			resource.TestCheckResourceAttrSet("data.gitub_actions_public_key.test_pk", "key_id"),
-			resource.TestCheckResourceAttrSet("data.gitub_actions_public_key.test_pk", "key"),
+			resource.TestCheckResourceAttrSet("data.github_actions_public_key.test_pk", "key_id"),
+			resource.TestCheckResourceAttrSet("data.github_actions_public_key.test_pk", "key"),
 		)
 
 		testCase := func(t *testing.T, mode string) {
