@@ -134,6 +134,66 @@ func TestAccGithubRepositoryFile(t *testing.T) {
 		})
 
 	})
+
+	t.Run("commits with custom message, author and e-mail", func(t *testing.T) {
+
+		config := fmt.Sprintf(`
+			resource "github_repository" "test" {
+			  name = "tf-acc-test-%s"
+				auto_init = true
+			}
+
+			resource "github_repository_file" "test" {
+			  repository = github_repository.test.id
+			  file       = "test"
+			  content    = "test"
+			  commit_message = "Managed by Terraform"
+			  commit_author  = "Terraform User"
+			  commit_email   = "terraform@example.com"
+			}
+		`, randomID)
+
+		check := resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttr(
+				"github_repository_file.test", "commit_message",
+				"Managed by Terraform",
+			),
+			resource.TestCheckResourceAttr(
+				"github_repository_file.test", "commit_author",
+				"Terraform User",
+			),
+			resource.TestCheckResourceAttr(
+				"github_repository_file.test", "commit_email",
+				"terraform@example.com",
+			),
+		)
+
+		testCase := func(t *testing.T, mode string) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:  func() { skipUnlessMode(t, mode) },
+				Providers: testAccProviders,
+				Steps: []resource.TestStep{
+					{
+						Config: config,
+						Check:  check,
+					},
+				},
+			})
+		}
+
+		t.Run("with an anonymous account", func(t *testing.T) {
+			t.Skip("anonymous account not supported for this operation")
+		})
+
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase(t, individual)
+		})
+
+		t.Run("with an organization account", func(t *testing.T) {
+			testCase(t, organization)
+		})
+
+	})
 }
 
 // // The authenticated user's name used for commits should be exported as GITHUB_TEST_USER_NAME
