@@ -25,7 +25,7 @@ func TestAccGithubRepositoryFile(t *testing.T) {
 				auto_init = true
 			}
 
-			resource "github_repository_file" "foo" {
+			resource "github_repository_file" "test" {
 			  repository = github_repository.test.id
 			  file       = "test"
 			  content    = "%s"
@@ -34,14 +34,16 @@ func TestAccGithubRepositoryFile(t *testing.T) {
 
 		checks := map[string]resource.TestCheckFunc{
 			"before": resource.ComposeTestCheckFunc(
-			// resource.TestCheckResourceAttr("github_actions_secret.test_secret", "plaintext_value", secretValue),
-			// resource.TestCheckResourceAttrSet("github_actions_secret.test_secret", "created_at"),
-			// resource.TestCheckResourceAttrSet("github_actions_secret.test_secret", "updated_at"),
+				resource.TestCheckResourceAttr(
+					"github_repository_file.test", "sha",
+					"deee258b7c807901aad79d01da020d993739160a",
+				),
 			),
 			"after": resource.ComposeTestCheckFunc(
-			// resource.TestCheckResourceAttr("github_actions_secret.test_secret", "plaintext_value", updatedSecretValue),
-			// resource.TestCheckResourceAttrSet("github_actions_secret.test_secret", "created_at"),
-			// resource.TestCheckResourceAttrSet("github_actions_secret.test_secret", "updated_at"),
+				resource.TestCheckResourceAttr(
+					"github_repository_file.test", "sha",
+					"ec9aad0ba478cdd7349faabbeac2a64e5ce72ddb",
+				),
 			),
 		}
 
