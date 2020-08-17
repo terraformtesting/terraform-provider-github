@@ -22,6 +22,7 @@ func TestAccGithubRepositoryFile(t *testing.T) {
 		config := fmt.Sprintf(`
 			resource "github_repository" "test" {
 			  name = "tf-acc-test-%s"
+				auto_init = true
 			}
 
 			resource "github_repository_file" "foo" {
