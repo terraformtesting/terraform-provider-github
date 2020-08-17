@@ -104,7 +104,7 @@ func TestAccGithubRepositoryFile(t *testing.T) {
 		check := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttr(
 				"github_repository_file.test", "sha",
-				"deee258b7c807901aad79d01da020d993739160a",
+				"30d74d258442c7c65512eafab474568dd706c430",
 			),
 		)
 
