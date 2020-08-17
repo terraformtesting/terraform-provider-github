@@ -144,9 +144,8 @@ func TestAccGithubActionsSecret(t *testing.T) {
 				Providers: testAccProviders,
 				Steps: []resource.TestStep{
 					{
-						Config:             config,
-						Destroy:            true,
-						ExpectNonEmptyPlan: true,
+						Config:  config,
+						Destroy: true,
 					},
 				},
 			})
