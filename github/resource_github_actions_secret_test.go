@@ -122,48 +122,48 @@ func TestAccGithubActionsSecret(t *testing.T) {
 
 	})
 
-	// t.Run("deletes secrets without error", func(t *testing.T) {
-	//
-	// 	secretValue := "super_secret_value"
-	//
-	// 	config := fmt.Sprintf(`
-	// 			resource "github_repository" "test" {
-	// 				name = "%s"
-	// 			}
-	//
-	// 			resource "github_actions_secret" "test_secret" {
-	// 				repository       = github_repository.test.name
-	// 				secret_name      = "test_secret_name"
-	// 				plaintext_value  = "%s"
-	// 			}
-	// 		`, testRepo, secretValue)
-	//
-	// 	testCase := func(t *testing.T, mode string) {
-	// 		resource.Test(t, resource.TestCase{
-	// 			PreCheck:  func() { skipUnlessMode(t, mode) },
-	// 			Providers: testAccProviders,
-	// 			Steps: []resource.TestStep{
-	// 				{
-	// 					Config:             config,
-	// 					Destroy:            true,
-	// 					ExpectNonEmptyPlan: true,
-	// 				},
-	// 			},
-	// 		})
-	// 	}
-	//
-	// 	t.Run("with an anonymous account", func(t *testing.T) {
-	// 		t.Skip("anonymous account not supported for this operation")
-	// 	})
-	//
-	// 	t.Run("with an individual account", func(t *testing.T) {
-	// 		testCase(t, individual)
-	// 	})
-	//
-	// 	t.Run("with an organization account", func(t *testing.T) {
-	// 		testCase(t, organization)
-	// 	})
-	//
-	// })
+	t.Run("deletes secrets without error", func(t *testing.T) {
+
+		secretValue := "super_secret_value"
+
+		config := fmt.Sprintf(`
+				resource "github_repository" "test" {
+					name = "%s"
+				}
+
+				resource "github_actions_secret" "test_secret" {
+					repository       = github_repository.test.name
+					secret_name      = "test_secret_name"
+					plaintext_value  = "%s"
+				}
+			`, testRepo, secretValue)
+
+		testCase := func(t *testing.T, mode string) {
+			resource.Test(t, resource.TestCase{
+				PreCheck:  func() { skipUnlessMode(t, mode) },
+				Providers: testAccProviders,
+				Steps: []resource.TestStep{
+					{
+						Config:             config,
+						Destroy:            true,
+						ExpectNonEmptyPlan: true,
+					},
+				},
+			})
+		}
+
+		t.Run("with an anonymous account", func(t *testing.T) {
+			t.Skip("anonymous account not supported for this operation")
+		})
+
+		t.Run("with an individual account", func(t *testing.T) {
+			testCase(t, individual)
+		})
+
+		t.Run("with an organization account", func(t *testing.T) {
+			testCase(t, organization)
+		})
+
+	})
 
 }
