@@ -21,7 +21,7 @@ func TestAccGithubUserSshKey(t *testing.T) {
 		config := fmt.Sprintf(`
 			resource "github_user_ssh_key" "test" {
 				title = "tf-acc-test-%s"
-				key   = "%s""
+				key   = "%s"
 			}
 		`, randomID, testKey)
 
