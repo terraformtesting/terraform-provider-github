@@ -14,23 +14,30 @@ import (
 
 func TestAccGithubUserSshKey(t *testing.T) {
 
+	randomID := acctest.RandStringFromCharSet(5, acctest.CharSetAlphaNum)
+
 	t.Run("creates and destroys a user SSH key without error", func(t *testing.T) {
 
-		keyRe := regexp.MustCompile("^ecdsa-sha2-nistp384 ")
-		urlRe := regexp.MustCompile("^https://api.github.com/[a-z0-9]+/keys/")
-		title := fmt.Sprintf("tf-acc-test-%s",
-			acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum))
 		config := fmt.Sprintf(`
 			resource "github_user_ssh_key" "test" {
-				title = "%s"
+				title = "tf-acc-test-%s"
 				key   = "%s""
 			}
-		`, title, testKey)
+		`, randomID, testKey)
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("github_user_ssh_key.test", "title", title),
-			resource.TestMatchResourceAttr("github_user_ssh_key.test", "key", keyRe),
-			resource.TestMatchResourceAttr("github_user_ssh_key.test", "url", urlRe),
+			resource.TestMatchResourceAttr(
+				"github_user_ssh_key.test", "title",
+				regexp.MustCompile(randomID),
+			),
+			resource.TestMatchResourceAttr(
+				"github_user_ssh_key.test", "key",
+				regexp.MustCompile("^ecdsa-sha2-nistp384 "),
+			),
+			resource.TestMatchResourceAttr(
+				"github_user_ssh_key.test", "url",
+				regexp.MustCompile("^https://api.github.com/[a-z0-9]+/keys/"),
+			),
 		)
 
 		testCase := func(t *testing.T, mode string) {
@@ -56,7 +63,7 @@ func TestAccGithubUserSshKey(t *testing.T) {
 		})
 
 		t.Run("with an organization account", func(t *testing.T) {
-			t.Skip("anonymous account not supported for this operation")
+			testCase(t, organization)
 		})
 
 	})
