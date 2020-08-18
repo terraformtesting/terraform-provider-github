@@ -54,7 +54,7 @@ func TestAccGithubUserDataSource(t *testing.T) {
 
 		config := fmt.Sprintf(`
 				data "github_user" "test" {
-					username = "%s"
+					username = "!%s"
 				}
 			`, testOwner)
 
