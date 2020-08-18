@@ -10,7 +10,7 @@ import (
 
 func TestAccGithubUserDataSource(t *testing.T) {
 
-	t.Run("queries for an existing individual account without error", func(t *testing.T) {
+	t.Run("queries an existing individual account without error", func(t *testing.T) {
 
 		config := fmt.Sprintf(`
 			data "github_user" "test" {
