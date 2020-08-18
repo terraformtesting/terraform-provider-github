@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -10,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"golang.org/x/crypto/ed25519"
 )
 
 func TestAccGithubUserSshKey(t *testing.T) {
@@ -17,6 +19,9 @@ func TestAccGithubUserSshKey(t *testing.T) {
 	randomID := acctest.RandStringFromCharSet(5, acctest.CharSetAlphaNum)
 
 	t.Run("creates and destroys a user SSH key without error", func(t *testing.T) {
+
+		publicKey, _, err := ed25519.GenerateKey(rand.Reader)
+		testKey := fmt.Sprintf("%v", publicKey)
 
 		config := fmt.Sprintf(`
 			resource "github_user_ssh_key" "test" {
@@ -143,4 +148,4 @@ func testAccCheckGithubUserSshKeyDestroy(s *terraform.State) error {
 	return nil
 }
 
-const testKey = "ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBM3cbPV+J02cSXUJ5pfUfQ839WfYbhmM44J8xCslmZeyGVvql+wdfVoKCToh4N6zokCVkBDgnPL2oWnuyqYL7W2vOUiZLt5USunQ/Ywg7ZVkT1ULiGslF2P72AZVrkoq9Q=="
+// const testKey = "ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBM3cbPV+J02cSXUJ5pfUfQ839WfYbhmM44J8xCslmZeyGVvql+wdfVoKCToh4N6zokCVkBDgnPL2oWnuyqYL7W2vOUiZLt5USunQ/Ywg7ZVkT1ULiGslF2P72AZVrkoq9Q=="
