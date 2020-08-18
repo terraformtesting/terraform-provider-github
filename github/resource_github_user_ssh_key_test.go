@@ -28,7 +28,7 @@ func TestAccGithubUserSshKey(t *testing.T) {
 				title = "tf-acc-test-%s"
 				key   = "%s"
 			}
-		`, randomID, testKey)
+		`, randomID, string(testKey))
 
 		check := resource.ComposeTestCheckFunc(
 			resource.TestMatchResourceAttr(
