@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"golang.org/x/crypto/ed25519"
+	"golang.org/x/crypto/ssh"
 )
 
 func TestAccGithubUserSshKey(t *testing.T) {
