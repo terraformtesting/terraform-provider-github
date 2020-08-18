@@ -20,7 +20,7 @@ func TestAccGithubUserSshKey(t *testing.T) {
 
 	t.Run("creates and destroys a user SSH key without error", func(t *testing.T) {
 
-		publicKey, _, err := ed25519.GenerateKey(rand.Reader)
+		publicKey, _, _ := ed25519.GenerateKey(rand.Reader)
 		testKey := fmt.Sprintf("%v", publicKey)
 
 		config := fmt.Sprintf(`
