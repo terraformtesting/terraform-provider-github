@@ -3,7 +3,9 @@ package github
 import (
 	"context"
 	"crypto/rand"
+	"crypto/rsa"
 	"fmt"
+	"os"
 	"regexp"
 	"strconv"
 	"testing"
@@ -20,8 +22,10 @@ func TestAccGithubUserSshKey(t *testing.T) {
 
 	t.Run("creates and destroys a user SSH key without error", func(t *testing.T) {
 
-		publicKey, _, _ := ed25519.GenerateKey(rand.Reader)
-		testKey := fmt.Sprintf("%v", publicKey)
+		testKey, err := MakeSSHKeyPair()
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		config := fmt.Sprintf(`
 			resource "github_user_ssh_key" "test" {
@@ -148,4 +152,33 @@ func testAccCheckGithubUserSshKeyDestroy(s *terraform.State) error {
 	return nil
 }
 
+// https://stackoverflow.com/questions/21151714/go-generate-an-ssh-public-key
 // const testKey = "ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBM3cbPV+J02cSXUJ5pfUfQ839WfYbhmM44J8xCslmZeyGVvql+wdfVoKCToh4N6zokCVkBDgnPL2oWnuyqYL7W2vOUiZLt5USunQ/Ywg7ZVkT1ULiGslF2P72AZVrkoq9Q=="
+
+// https://stackoverflow.com/questions/21151714/go-generate-an-ssh-public-key
+// MakeSSHKeyPair make a pair of public and private keys for SSH access.
+// Public key is encoded in the format for inclusion in an OpenSSH authorized_keys file.
+// Private Key generated is PEM encoded
+func MakeSSHKeyPair() (string, error) {
+	bytes := "empty"
+
+	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	if err != nil {
+		return bytes, err
+	}
+
+	// generate and write private key as PEM
+	privateKeyFile, err := os.Create("./test")
+	defer privateKeyFile.Close()
+	if err != nil {
+		return bytes, err
+	}
+
+	// generate and write public key
+	pub, err := ssh.NewPublicKey(&privateKey.PublicKey)
+	if err != nil {
+		return bytes, err
+	}
+
+	return string(ssh.MarshalAuthorizedKey(pub)), nil
+}
