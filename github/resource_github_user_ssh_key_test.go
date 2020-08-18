@@ -61,54 +61,54 @@ func TestAccGithubUserSshKey(t *testing.T) {
 
 	})
 
-	t.Run("imports an individual account SSH key without error", func(t *testing.T) {
-
-		title := fmt.Sprintf("tf-acc-test-%s",
-			acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum))
-		config := fmt.Sprintf(`
-			resource "github_user_ssh_key" "test" {
-				title = "%s"
-				key   = "%s""
-			}
-		`, title, testKey)
-
-		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttrSet("github_user_ssh_key.test", "title"),
-			resource.TestCheckResourceAttrSet("github_user_ssh_key.test", "key"),
-			resource.TestCheckResourceAttrSet("github_user_ssh_key.test", "url"),
-		)
-
-		testCase := func(t *testing.T, mode string) {
-			resource.Test(t, resource.TestCase{
-				PreCheck:  func() { skipUnlessMode(t, mode) },
-				Providers: testAccProviders,
-				Steps: []resource.TestStep{
-					{
-						Config: config,
-						Check:  check,
-					},
-					{
-						ResourceName:      "github_user_ssh_key.test",
-						ImportState:       true,
-						ImportStateVerify: true,
-					},
-				},
-			})
-		}
-
-		t.Run("with an anonymous account", func(t *testing.T) {
-			t.Skip("anonymous account not supported for this operation")
-		})
-
-		t.Run("with an individual account", func(t *testing.T) {
-			testCase(t, individual)
-		})
-
-		t.Run("with an organization account", func(t *testing.T) {
-			testCase(t, organization)
-		})
-
-	})
+	// t.Run("imports an individual account SSH key without error", func(t *testing.T) {
+	//
+	// 	title := fmt.Sprintf("tf-acc-test-%s",
+	// 		acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum))
+	// 	config := fmt.Sprintf(`
+	// 		resource "github_user_ssh_key" "test" {
+	// 			title = "%s"
+	// 			key   = "%s""
+	// 		}
+	// 	`, title, testKey)
+	//
+	// 	check := resource.ComposeTestCheckFunc(
+	// 		resource.TestCheckResourceAttrSet("github_user_ssh_key.test", "title"),
+	// 		resource.TestCheckResourceAttrSet("github_user_ssh_key.test", "key"),
+	// 		resource.TestCheckResourceAttrSet("github_user_ssh_key.test", "url"),
+	// 	)
+	//
+	// 	testCase := func(t *testing.T, mode string) {
+	// 		resource.Test(t, resource.TestCase{
+	// 			PreCheck:  func() { skipUnlessMode(t, mode) },
+	// 			Providers: testAccProviders,
+	// 			Steps: []resource.TestStep{
+	// 				{
+	// 					Config: config,
+	// 					Check:  check,
+	// 				},
+	// 				{
+	// 					ResourceName:      "github_user_ssh_key.test",
+	// 					ImportState:       true,
+	// 					ImportStateVerify: true,
+	// 				},
+	// 			},
+	// 		})
+	// 	}
+	//
+	// 	t.Run("with an anonymous account", func(t *testing.T) {
+	// 		t.Skip("anonymous account not supported for this operation")
+	// 	})
+	//
+	// 	t.Run("with an individual account", func(t *testing.T) {
+	// 		testCase(t, individual)
+	// 	})
+	//
+	// 	t.Run("with an organization account", func(t *testing.T) {
+	// 		testCase(t, organization)
+	// 	})
+	//
+	// })
 }
 
 func testAccCheckGithubUserSshKeyDestroy(s *terraform.State) error {
