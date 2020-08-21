@@ -2,7 +2,6 @@ package github
 
 import (
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -27,8 +26,8 @@ func TestAccGithubActionsPublicKeyDataSource(t *testing.T) {
 		`, randomID)
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestMatchResourceAttr(
-				"data.github_actions_public_key.test", "id", regexp.MustCompile(randomID),
+			resource.TestCheckResourceAttrSet(
+				"data.github_actions_public_key.test", "key",
 			),
 		)
 
