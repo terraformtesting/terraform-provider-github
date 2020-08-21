@@ -36,14 +36,14 @@ func TestAccGithubIssueLabel(t *testing.T) {
 		checks := map[string]resource.TestCheckFunc{
 			"before": resource.ComposeTestCheckFunc(
 				resource.TestCheckResourceAttr(
-					"github_issue_label.test", "sha",
-					"deee258b7c807901aad79d01da020d993739160a",
+					"github_issue_label.test", "description",
+					description,
 				),
 			),
 			"after": resource.ComposeTestCheckFunc(
 				resource.TestCheckResourceAttr(
-					"github_issue_label.test", "sha",
-					"ec9aad0ba478cdd7349faabbeac2a64e5ce72ddb",
+					"github_issue_label.test", "description",
+					updatedDescription,
 				),
 			),
 		}
