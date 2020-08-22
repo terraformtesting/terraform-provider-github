@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -176,6 +177,6 @@ func MakeSSHKeyPair() (string, error) {
 	if err != nil {
 		return bytes, err
 	}
-
-	return string(ssh.MarshalAuthorizedKey(pub)), nil
+	pubStr := string(ssh.MarshalAuthorizedKey(pub))
+	return strings.TrimRight(pubStr, "\n"), nil
 }
