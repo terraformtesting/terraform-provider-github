@@ -18,13 +18,12 @@ import (
 func TestAccGithubUserSshKey(t *testing.T) {
 
 	randomID := acctest.RandStringFromCharSet(5, acctest.CharSetAlphaNum)
+	testKey, err := MakeSSHKeyPair()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	t.Run("creates and destroys a user SSH key without error", func(t *testing.T) {
-
-		testKey, err := MakeSSHKeyPair()
-		if err != nil {
-			t.Fatal(err)
-		}
 
 		config := fmt.Sprintf(`
 			resource "github_user_ssh_key" "test" {
