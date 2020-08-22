@@ -16,10 +16,7 @@ import (
 func TestAccGithubUserSshKey(t *testing.T) {
 
 	randomID := acctest.RandStringFromCharSet(5, acctest.CharSetAlphaNum)
-	testKey, err := newTestKey()
-	if err != nil {
-		t.Fatal(err)
-	}
+	testKey := newTestKey()
 
 	t.Run("creates and destroys a user SSH key without error", func(t *testing.T) {
 
@@ -37,7 +34,7 @@ func TestAccGithubUserSshKey(t *testing.T) {
 			),
 			resource.TestMatchResourceAttr(
 				"github_user_ssh_key.test", "key",
-				regexp.MustCompile("^ecdsa-sha2-nistp384 "),
+				regexp.MustCompile("^ssh-rsa "),
 			),
 			resource.TestMatchResourceAttr(
 				"github_user_ssh_key.test", "url",
@@ -122,11 +119,9 @@ func TestAccGithubUserSshKey(t *testing.T) {
 	})
 }
 
-func newTestKey() (string, error) {
+func newTestKey() string {
 	privateKey, _ := rsa.GenerateKey(rand.Reader, 1024)
 	publicKey, _ := ssh.NewPublicKey(&privateKey.PublicKey)
-	result := strings.TrimRight(
-		string(ssh.MarshalAuthorizedKey(publicKey)),
-		"\n")
-	return result, nil
+	result := strings.TrimRight(string(ssh.MarshalAuthorizedKey(publicKey)), "\n")
+	return result
 }
