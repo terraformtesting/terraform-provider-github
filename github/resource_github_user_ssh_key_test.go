@@ -71,19 +71,16 @@ func TestAccGithubUserSshKey(t *testing.T) {
 
 	t.Run("imports an individual account SSH key without error", func(t *testing.T) {
 
-		title := fmt.Sprintf("tf-acc-test-%s",
-			acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum))
 		config := fmt.Sprintf(`
 			resource "github_user_ssh_key" "test" {
-				title = "%s"
+				title = "tf-acc-test-%s"
 				key   = "%s"
 			}
-		`, title, testKey)
+		`, randomID, testKey)
 
 		check := resource.ComposeTestCheckFunc(
 			resource.TestCheckResourceAttrSet("github_user_ssh_key.test", "title"),
 			resource.TestCheckResourceAttrSet("github_user_ssh_key.test", "key"),
-			resource.TestCheckResourceAttrSet("github_user_ssh_key.test", "url"),
 		)
 
 		testCase := func(t *testing.T, mode string) {
@@ -122,6 +119,6 @@ func TestAccGithubUserSshKey(t *testing.T) {
 func newTestKey() string {
 	privateKey, _ := rsa.GenerateKey(rand.Reader, 1024)
 	publicKey, _ := ssh.NewPublicKey(&privateKey.PublicKey)
-	result := strings.TrimRight(string(ssh.MarshalAuthorizedKey(publicKey)), "\n")
-	return result
+	testKey := strings.TrimRight(string(ssh.MarshalAuthorizedKey(publicKey)), "\n")
+	return testKey
 }
