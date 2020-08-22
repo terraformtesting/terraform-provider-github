@@ -1,25 +1,22 @@
 package github
 
 import (
-	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"golang.org/x/crypto/ssh"
 )
 
 func TestAccGithubUserSshKey(t *testing.T) {
 
 	randomID := acctest.RandStringFromCharSet(5, acctest.CharSetAlphaNum)
-	testKey, err := MakeSSHKeyPair()
+	testKey, err := newTestKey()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,9 +47,8 @@ func TestAccGithubUserSshKey(t *testing.T) {
 
 		testCase := func(t *testing.T, mode string) {
 			resource.Test(t, resource.TestCase{
-				PreCheck:     func() { skipUnlessMode(t, mode) },
-				Providers:    testAccProviders,
-				CheckDestroy: testAccCheckGithubUserSshKeyDestroy,
+				PreCheck:  func() { skipUnlessMode(t, mode) },
+				Providers: testAccProviders,
 				Steps: []resource.TestStep{
 					{
 						Config: config,
@@ -126,57 +122,11 @@ func TestAccGithubUserSshKey(t *testing.T) {
 	})
 }
 
-func testAccCheckGithubUserSshKeyDestroy(s *terraform.State) error {
-	conn := testAccProvider.Meta().(*Owner).v3client
-
-	for _, rs := range s.RootModule().Resources {
-		if rs.Type != "github_user_ssh_key" {
-			continue
-		}
-
-		id, err := strconv.ParseInt(rs.Primary.ID, 10, 64)
-		if err != nil {
-			return unconvertibleIdErr(rs.Primary.ID, err)
-		}
-
-		_, resp, err := conn.Users.GetKey(context.TODO(), id)
-		if err == nil {
-			return fmt.Errorf("SSH key %s still exists", rs.Primary.ID)
-		}
-		if resp.StatusCode != 404 {
-			return err
-		}
-		return nil
-	}
-	return nil
-}
-
-// const testKey = "ecdsa-sha2-nistp384 AAAAE2VjZHNhLXNoYTItbmlzdHAzODQAAAAIbmlzdHAzODQAAABhBM3cbPV+J02cSXUJ5pfUfQ839WfYbhmM44J8xCslmZeyGVvql+wdfVoKCToh4N6zokCVkBDgnPL2oWnuyqYL7W2vOUiZLt5USunQ/Ywg7ZVkT1ULiGslF2P72AZVrkoq9Q=="
-
-// https://stackoverflow.com/questions/21151714/go-generate-an-ssh-public-key
-// MakeSSHKeyPair make a pair of public and private keys for SSH access.
-// Public key is encoded in the format for inclusion in an OpenSSH authorized_keys file.
-// Private Key generated is PEM encoded
-func MakeSSHKeyPair() (string, error) {
-	bytes := "empty"
-
-	privateKey, err := rsa.GenerateKey(rand.Reader, 1024)
-	if err != nil {
-		return bytes, err
-	}
-
-	// generate and write private key as PEM
-	// privateKeyFile, err := os.Create("./test")
-	// defer privateKeyFile.Close()
-	// if err != nil {
-	// 	return bytes, err
-	// }
-
-	// generate and write public key
-	pub, err := ssh.NewPublicKey(&privateKey.PublicKey)
-	if err != nil {
-		return bytes, err
-	}
-	pubStr := string(ssh.MarshalAuthorizedKey(pub))
-	return strings.TrimRight(pubStr, "\n"), nil
+func newTestKey() (string, error) {
+	privateKey, _ := rsa.GenerateKey(rand.Reader, 1024)
+	publicKey, _ := ssh.NewPublicKey(&privateKey.PublicKey)
+	result := strings.TrimRight(
+		string(ssh.MarshalAuthorizedKey(publicKey)),
+		"\n")
+	return result, nil
 }
