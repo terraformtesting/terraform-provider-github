@@ -45,7 +45,7 @@ func TestAccGithubActionsPublicKeyDataSource(t *testing.T) {
 		}
 
 		t.Run("with an anonymous account", func(t *testing.T) {
-			t.Skip("anonymous account not supported for this operation")
+			testCase(t, anonymous)
 		})
 
 		t.Run("with an individual account", func(t *testing.T) {
