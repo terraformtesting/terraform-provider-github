@@ -112,25 +112,19 @@ func TestAccProviderConfigure(t *testing.T) {
 
 		config := `
 			provider "github" {}
-			data "github_ip_ranges" "test" {}
 		`
-		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "hooks.#"),
-			resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "git.#"),
-			resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "pages.#"),
-			resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "importer.#"),
-		)
 
 		resource.Test(t, resource.TestCase{
 			PreCheck:  func() { skipUnlessMode(t, anonymous) },
 			Providers: testAccProviders,
 			Steps: []resource.TestStep{
 				{
-					Config: config,
-					Check:  check,
+					Config:             config,
+					ExpectNonEmptyPlan: false,
 				},
 			},
 		})
+
 	})
 
 	t.Run("can be configured with an individual account", func(t *testing.T) {
@@ -156,36 +150,28 @@ func TestAccProviderConfigure(t *testing.T) {
 
 	})
 
-	// t.Run("can be configured with an organization account", func(t *testing.T) {
-	//
-	// 	organizationConfiguration := fmt.Sprintf(`
-	// 		provider "github" {
-	// 			organization = "%[1]s"
-	// 			token = "%[2]s"
-	// 		}
-	// 		data "github_organization" "test" { name = "%[1]s" }
-	// 	`,
-	// 		os.Getenv("GITHUB_ORGANIZATION"),
-	// 		os.Getenv("GITHUB_TOKEN"),
-	// 	)
-	//
-	// 	organizationCheck := resource.ComposeTestCheckFunc(
-	// 		resource.TestCheckResourceAttrSet("data.github_organization.test", "plan"),
-	// 	)
-	//
-	// 	resource.Test(t, resource.TestCase{
-	// 		PreCheck: func() {
-	// 			skipUnlessMode(t, "organization")
-	// 		},
-	// 		Providers: testAccProviders,
-	// 		Steps: []resource.TestStep{
-	// 			{
-	// 				Config: organizationConfiguration,
-	// 				Check:  organizationCheck,
-	// 			},
-	// 		},
-	// 	})
-	// })
+	t.Run("can be configured with an organization account", func(t *testing.T) {
+
+		config := fmt.Sprintf(`
+			provider "github" {
+				token = "%s"
+				organization = "%s"
+			}`,
+			testToken, testOrganizationFunc(),
+		)
+
+		resource.Test(t, resource.TestCase{
+			PreCheck:  func() { skipUnlessMode(t, individual) },
+			Providers: testAccProviders,
+			Steps: []resource.TestStep{
+				{
+					Config:             config,
+					ExpectNonEmptyPlan: false,
+				},
+			},
+		})
+
+	})
 
 	// t.Run("can be configured with a GHES deployment", func(t *testing.T) {
 	//
