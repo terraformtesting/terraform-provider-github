@@ -80,6 +80,7 @@ func TestAccProviderConfigure(t *testing.T) {
 		os.Setenv("GITHUB_BASE_URL", url)
 
 		config := fmt.Sprintf(`
+			provider "github" {}
 			data "github_user" "test" {
 				username = "%s"
 			}
