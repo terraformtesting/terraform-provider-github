@@ -1,6 +1,7 @@
 package github
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -110,6 +111,7 @@ func TestAccProviderConfigure(t *testing.T) {
 	t.Run("can be configured to run anonymously", func(t *testing.T) {
 
 		config := `
+			provider "github" {}
 			data "github_ip_ranges" "test" {}
 		`
 		check := resource.ComposeTestCheckFunc(
@@ -131,36 +133,33 @@ func TestAccProviderConfigure(t *testing.T) {
 		})
 	})
 
-	// t.Run("can be configured with an individual account", func(t *testing.T) {
-	//
-	// 	individualConfiguration := fmt.Sprintf(`
-	// 		provider "github" {
-	// 			token = "%s"
-	// 		}
-	// 		data "github_user" "test" { username = "%s" }
-	// 	`,
-	// 		os.Getenv("GITHUB_TOKEN"),
-	// 		os.Getenv("GITHUB_OWNER"),
-	// 	)
-	//
-	// 	individualCheck := resource.ComposeTestCheckFunc(
-	// 		resource.TestCheckResourceAttrSet("data.github_user.test", "username"),
-	// 	)
-	//
-	// 	resource.Test(t, resource.TestCase{
-	// 		PreCheck: func() {
-	// 			skipUnlessMode(t, "individual")
-	// 		},
-	// 		Providers: testAccProviders,
-	// 		Steps: []resource.TestStep{
-	// 			{
-	// 				Config: individualConfiguration,
-	// 				Check:  individualCheck,
-	// 			},
-	// 		},
-	// 	})
-	//
-	// })
+	t.Run("can be configured with an individual account", func(t *testing.T) {
+
+		config := fmt.Sprintf(`
+			provider "github" {
+				token = "%s"
+			}
+			data "github_user" "test" { username = "%s" }
+		`,
+			testToken, testOwner,
+		)
+
+		check := resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttrSet("data.github_user.test", "username"),
+		)
+
+		resource.Test(t, resource.TestCase{
+			PreCheck:  func() { skipUnlessMode(t, individual) },
+			Providers: testAccProviders,
+			Steps: []resource.TestStep{
+				{
+					Config: config,
+					Check:  check,
+				},
+			},
+		})
+
+	})
 
 	// t.Run("can be configured with an organization account", func(t *testing.T) {
 	//
