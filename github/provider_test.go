@@ -1,11 +1,6 @@
 package github
 
 import (
-	"fmt"
-	"math/rand"
-	"os"
-	"path/filepath"
-	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -56,87 +51,85 @@ func TestProvider(t *testing.T) {
 
 func TestAccProviderConfigure(t *testing.T) {
 
-	t.Run("can be configured to run insecurely", func(t *testing.T) {
-
-		// Use ephemeral port range (49152–65535)
-		port := fmt.Sprintf("%d", 49152+rand.Intn(16382))
-
-		// Use self-signed certificate
-		certFile := filepath.Join("test-fixtures", "cert.pem")
-		keyFile := filepath.Join("test-fixtures", "key.pem")
-
-		url, closeFunc := githubTLSApiMock(port, certFile, keyFile, t)
-		defer func() {
-			err := closeFunc()
-			if err != nil {
-				t.Fatal(err)
-			}
-		}()
-
-		oldBaseUrl := os.Getenv("GITHUB_BASE_URL")
-		defer os.Setenv("GITHUB_BASE_URL", oldBaseUrl)
-
-		// Point provider to mock API with self-signed cert
-		os.Setenv("GITHUB_BASE_URL", url)
-
-		config := fmt.Sprintf(`
-			provider "github" {}
-			data "github_user" "test" {
-				username = "%s"
-			}
-		`, "hashibot")
-
-		testCase := func(mode string) {
-			resource.Test(t, resource.TestCase{
-				PreCheck:  func() { skipUnlessMode(t, mode) },
-				Providers: testAccProviders,
-				Steps: []resource.TestStep{
-					{
-						Config:      config,
-						ExpectError: regexp.MustCompile("x509: certificate is valid for untrusted, not localhost"),
-					},
-				},
-			})
-		}
-
-		t.Run("with an anonymous account", func(t *testing.T) {
-			t.Skip("anonymous account not supported for this operation")
-		})
-
-		t.Run("with an individual account", func(t *testing.T) {
-			testCase(individual)
-		})
-
-		t.Run("with an organization account", func(t *testing.T) {
-			testCase(organization)
-		})
-
-	})
-
-	// t.Run("can be configured to run anonymously", func(t *testing.T) {
+	// t.Run("can be configured to run insecurely", func(t *testing.T) {
 	//
-	// 	anonymousConfiguration := `
-	// 		provider "github" {}
-	// 		data "github_ip_ranges" "test" {}
-	// 	`
-	// 	anonymousCheck := resource.ComposeTestCheckFunc(
-	// 		resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "hooks.#"),
-	// 		resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "git.#"),
-	// 		resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "pages.#"),
-	// 		resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "importer.#"),
-	// 	)
+	// 	// Use ephemeral port range (49152–65535)
+	// 	port := fmt.Sprintf("%d", 49152+rand.Intn(16382))
 	//
-	// 	resource.Test(t, resource.TestCase{
-	// 		PreCheck:  func() { skipUnlessMode(t, "anonymous") },
-	// 		Providers: testAccProviders,
-	// 		Steps: []resource.TestStep{
-	// 			{
-	// 				Config: anonymousConfiguration,
-	// 				Check:  anonymousCheck,
+	// 	// Use self-signed certificate
+	// 	certFile := filepath.Join("test-fixtures", "cert.pem")
+	// 	keyFile := filepath.Join("test-fixtures", "key.pem")
+	//
+	// 	url, closeFunc := githubTLSApiMock(port, certFile, keyFile, t)
+	// 	defer func() {
+	// 		err := closeFunc()
+	// 		if err != nil {
+	// 			t.Fatal(err)
+	// 		}
+	// 	}()
+	//
+	// 	oldBaseUrl := os.Getenv("GITHUB_BASE_URL")
+	// 	defer os.Setenv("GITHUB_BASE_URL", oldBaseUrl)
+	//
+	// 	// Point provider to mock API with self-signed cert
+	// 	os.Setenv("GITHUB_BASE_URL", url)
+	//
+	// 	config := fmt.Sprintf(`
+	// 		data "github_user" "test" {
+	// 			username = "%s"
+	// 		}
+	// 	`, "hashibot")
+	//
+	// 	testCase := func(mode string) {
+	// 		resource.Test(t, resource.TestCase{
+	// 			PreCheck:  func() { skipUnlessMode(t, mode) },
+	// 			Providers: testAccProviders,
+	// 			Steps: []resource.TestStep{
+	// 				{
+	// 					Config:      config,
+	// 					ExpectError: regexp.MustCompile("x509: certificate is valid for untrusted, not localhost"),
+	// 				},
 	// 			},
-	// 		},
+	// 		})
+	// 	}
+	//
+	// 	t.Run("with an anonymous account", func(t *testing.T) {
+	// 		t.Skip("anonymous account not supported for this operation")
 	// 	})
+	//
+	// 	t.Run("with an individual account", func(t *testing.T) {
+	// 		testCase(individual)
+	// 	})
+	//
+	// 	t.Run("with an organization account", func(t *testing.T) {
+	// 		testCase(organization)
+	// 	})
+	//
 	// })
+
+	t.Run("can be configured to run anonymously", func(t *testing.T) {
+
+		config := `
+			data "github_ip_ranges" "test" {}
+		`
+		check := resource.ComposeTestCheckFunc(
+			resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "hooks.#"),
+			resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "git.#"),
+			resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "pages.#"),
+			resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "importer.#"),
+		)
+
+		resource.Test(t, resource.TestCase{
+			PreCheck:  func() { skipUnlessMode(t, anonymous) },
+			Providers: testAccProviders,
+			Steps: []resource.TestStep{
+				{
+					Config: config,
+					Check:  check,
+				},
+			},
+		})
+	})
 
 	// t.Run("can be configured with an individual account", func(t *testing.T) {
 	//
