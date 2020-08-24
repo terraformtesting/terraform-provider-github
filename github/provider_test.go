@@ -103,144 +103,144 @@ func TestAccProviderConfigure(t *testing.T) {
 		})
 
 		t.Run("with an individual account", func(t *testing.T) {
-			testCase("individual")
+			testCase(individual)
 		})
 
-		t.Run("with an individual account", func(t *testing.T) {
-			testCase("organization")
-		})
-
-	})
-
-	t.Run("can be configured to run anonymously", func(t *testing.T) {
-
-		anonymousConfiguration := `
-			provider "github" {}
-			data "github_ip_ranges" "test" {}
-		`
-		anonymousCheck := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "hooks.#"),
-			resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "git.#"),
-			resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "pages.#"),
-			resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "importer.#"),
-		)
-
-		resource.Test(t, resource.TestCase{
-			PreCheck:  func() { skipUnlessMode(t, "anonymous") },
-			Providers: testAccProviders,
-			Steps: []resource.TestStep{
-				{
-					Config: anonymousConfiguration,
-					Check:  anonymousCheck,
-				},
-			},
-		})
-	})
-
-	t.Run("can be configured with an individual account", func(t *testing.T) {
-
-		individualConfiguration := fmt.Sprintf(`
-			provider "github" {
-				token = "%s"
-			}
-			data "github_user" "test" { username = "%s" }
-		`,
-			os.Getenv("GITHUB_TOKEN"),
-			os.Getenv("GITHUB_OWNER"),
-		)
-
-		individualCheck := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttrSet("data.github_user.test", "username"),
-		)
-
-		resource.Test(t, resource.TestCase{
-			PreCheck: func() {
-				skipUnlessMode(t, "individual")
-			},
-			Providers: testAccProviders,
-			Steps: []resource.TestStep{
-				{
-					Config: individualConfiguration,
-					Check:  individualCheck,
-				},
-			},
+		t.Run("with an organization account", func(t *testing.T) {
+			testCase(organization)
 		})
 
 	})
 
-	t.Run("can be configured with an organization account", func(t *testing.T) {
+	// t.Run("can be configured to run anonymously", func(t *testing.T) {
+	//
+	// 	anonymousConfiguration := `
+	// 		provider "github" {}
+	// 		data "github_ip_ranges" "test" {}
+	// 	`
+	// 	anonymousCheck := resource.ComposeTestCheckFunc(
+	// 		resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "hooks.#"),
+	// 		resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "git.#"),
+	// 		resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "pages.#"),
+	// 		resource.TestCheckResourceAttrSet("data.github_ip_ranges.test", "importer.#"),
+	// 	)
+	//
+	// 	resource.Test(t, resource.TestCase{
+	// 		PreCheck:  func() { skipUnlessMode(t, "anonymous") },
+	// 		Providers: testAccProviders,
+	// 		Steps: []resource.TestStep{
+	// 			{
+	// 				Config: anonymousConfiguration,
+	// 				Check:  anonymousCheck,
+	// 			},
+	// 		},
+	// 	})
+	// })
 
-		organizationConfiguration := fmt.Sprintf(`
-			provider "github" {
-				organization = "%[1]s"
-				token = "%[2]s"
-			}
-			data "github_organization" "test" { name = "%[1]s" }
-		`,
-			os.Getenv("GITHUB_ORGANIZATION"),
-			os.Getenv("GITHUB_TOKEN"),
-		)
+	// t.Run("can be configured with an individual account", func(t *testing.T) {
+	//
+	// 	individualConfiguration := fmt.Sprintf(`
+	// 		provider "github" {
+	// 			token = "%s"
+	// 		}
+	// 		data "github_user" "test" { username = "%s" }
+	// 	`,
+	// 		os.Getenv("GITHUB_TOKEN"),
+	// 		os.Getenv("GITHUB_OWNER"),
+	// 	)
+	//
+	// 	individualCheck := resource.ComposeTestCheckFunc(
+	// 		resource.TestCheckResourceAttrSet("data.github_user.test", "username"),
+	// 	)
+	//
+	// 	resource.Test(t, resource.TestCase{
+	// 		PreCheck: func() {
+	// 			skipUnlessMode(t, "individual")
+	// 		},
+	// 		Providers: testAccProviders,
+	// 		Steps: []resource.TestStep{
+	// 			{
+	// 				Config: individualConfiguration,
+	// 				Check:  individualCheck,
+	// 			},
+	// 		},
+	// 	})
+	//
+	// })
 
-		organizationCheck := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttrSet("data.github_organization.test", "plan"),
-		)
+	// t.Run("can be configured with an organization account", func(t *testing.T) {
+	//
+	// 	organizationConfiguration := fmt.Sprintf(`
+	// 		provider "github" {
+	// 			organization = "%[1]s"
+	// 			token = "%[2]s"
+	// 		}
+	// 		data "github_organization" "test" { name = "%[1]s" }
+	// 	`,
+	// 		os.Getenv("GITHUB_ORGANIZATION"),
+	// 		os.Getenv("GITHUB_TOKEN"),
+	// 	)
+	//
+	// 	organizationCheck := resource.ComposeTestCheckFunc(
+	// 		resource.TestCheckResourceAttrSet("data.github_organization.test", "plan"),
+	// 	)
+	//
+	// 	resource.Test(t, resource.TestCase{
+	// 		PreCheck: func() {
+	// 			skipUnlessMode(t, "organization")
+	// 		},
+	// 		Providers: testAccProviders,
+	// 		Steps: []resource.TestStep{
+	// 			{
+	// 				Config: organizationConfiguration,
+	// 				Check:  organizationCheck,
+	// 			},
+	// 		},
+	// 	})
+	// })
 
-		resource.Test(t, resource.TestCase{
-			PreCheck: func() {
-				skipUnlessMode(t, "organization")
-			},
-			Providers: testAccProviders,
-			Steps: []resource.TestStep{
-				{
-					Config: organizationConfiguration,
-					Check:  organizationCheck,
-				},
-			},
-		})
-	})
-
-	t.Run("can be configured with a GHES deployment", func(t *testing.T) {
-
-		organizationConfiguration := fmt.Sprintf(`
-				provider "github" {
-					base_url = "%s"
-					token = "%s"
-				}
-				data "github_organization" "test" { name = "%s" }
-			`,
-			os.Getenv("GHES_BASE_URL"),
-			os.Getenv("GHES_TOKEN"),
-			os.Getenv("GHES_ORGANIZATION"),
-		)
-
-		organizationCheck := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttrSet("data.github_organization.test", "plan"),
-		)
-
-		testCase := func(mode string) {
-			resource.Test(t, resource.TestCase{
-				PreCheck:  func() { skipUnlessMode(t, mode) },
-				Providers: testAccProviders,
-				Steps: []resource.TestStep{
-					{
-						Config: organizationConfiguration,
-						Check:  organizationCheck,
-					},
-				},
-			})
-		}
-
-		t.Run("with an anonymous account", func(t *testing.T) {
-			testCase("anonymous")
-		})
-
-		t.Run("with an individual account", func(t *testing.T) {
-			testCase("individual")
-		})
-
-		t.Run("with an individual account", func(t *testing.T) {
-			testCase("organization")
-		})
-
-	})
+	// t.Run("can be configured with a GHES deployment", func(t *testing.T) {
+	//
+	// 	organizationConfiguration := fmt.Sprintf(`
+	// 			provider "github" {
+	// 				base_url = "%s"
+	// 				token = "%s"
+	// 			}
+	// 			data "github_organization" "test" { name = "%s" }
+	// 		`,
+	// 		os.Getenv("GHES_BASE_URL"),
+	// 		os.Getenv("GHES_TOKEN"),
+	// 		os.Getenv("GHES_ORGANIZATION"),
+	// 	)
+	//
+	// 	organizationCheck := resource.ComposeTestCheckFunc(
+	// 		resource.TestCheckResourceAttrSet("data.github_organization.test", "plan"),
+	// 	)
+	//
+	// 	testCase := func(mode string) {
+	// 		resource.Test(t, resource.TestCase{
+	// 			PreCheck:  func() { skipUnlessMode(t, mode) },
+	// 			Providers: testAccProviders,
+	// 			Steps: []resource.TestStep{
+	// 				{
+	// 					Config: organizationConfiguration,
+	// 					Check:  organizationCheck,
+	// 				},
+	// 			},
+	// 		})
+	// 	}
+	//
+	// 	t.Run("with an anonymous account", func(t *testing.T) {
+	// 		testCase("anonymous")
+	// 	})
+	//
+	// 	t.Run("with an individual account", func(t *testing.T) {
+	// 		testCase("individual")
+	// 	})
+	//
+	// 	t.Run("with an individual account", func(t *testing.T) {
+	// 		testCase("organization")
+	// 	})
+	//
+	// })
 }
