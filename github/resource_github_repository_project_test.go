@@ -31,8 +31,8 @@ func TestAccGithubRepositoryProject(t *testing.T) {
 
 		check := resource.ComposeTestCheckFunc(
 			resource.TestMatchResourceAttr(
-				"github_user_ssh_key.test", "title",
-				regexp.MustCompile(randomID),
+				"github_repository_project.test", "url",
+				regexp.MustCompile(randomID+"/projects/1"),
 			),
 		)
 
