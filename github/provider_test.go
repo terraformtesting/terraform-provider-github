@@ -138,8 +138,9 @@ func TestAccProviderConfigure(t *testing.T) {
 		config := fmt.Sprintf(`
 			provider "github" {
 				token = "%s"
+				owner = "%s"
 			}`,
-			testToken,
+			testToken, testOwner,
 		)
 
 		resource.Test(t, resource.TestCase{
