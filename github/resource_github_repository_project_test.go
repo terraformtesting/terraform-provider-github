@@ -19,6 +19,7 @@ func TestAccGithubRepositoryProject(t *testing.T) {
 
 			resource "github_repository" "test" {
 			  name = "tf-acc-test-%s"
+				has_projects = true
 			}
 
 			resource "github_repository_project" "test" {
