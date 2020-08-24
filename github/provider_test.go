@@ -138,14 +138,8 @@ func TestAccProviderConfigure(t *testing.T) {
 		config := fmt.Sprintf(`
 			provider "github" {
 				token = "%s"
-			}
-			data "github_user" "test" { username = "%s" }
-		`,
-			testToken, testOwner,
-		)
-
-		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttrSet("data.github_user.test", "username"),
+			}`,
+			testToken,
 		)
 
 		resource.Test(t, resource.TestCase{
@@ -153,8 +147,8 @@ func TestAccProviderConfigure(t *testing.T) {
 			Providers: testAccProviders,
 			Steps: []resource.TestStep{
 				{
-					Config: config,
-					Check:  check,
+					Config:             config,
+					ExpectNonEmptyPlan: false,
 				},
 			},
 		})
