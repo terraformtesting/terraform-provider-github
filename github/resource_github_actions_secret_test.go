@@ -12,24 +12,29 @@ import (
 
 func TestAccGithubActionsSecret(t *testing.T) {
 
-	testRepo := fmt.Sprintf("tf-acc-test-%s", acctest.RandStringFromCharSet(5,
-		acctest.CharSetAlphaNum))
+	randomID := acctest.RandStringFromCharSet(5, acctest.CharSetAlphaNum)
 
 	t.Run("reads a repository public key without error", func(t *testing.T) {
 
 		config := fmt.Sprintf(`
+
+			resource "github_repository" "test" {
+			  name = "tf-acc-test-%s"
+			}
+
 			data "github_actions_public_key" "test_pk" {
 			  repository = github_repository.test.name
 			}
 
-			resource "github_repository" "test" {
-			  name = "%s"
-			}
-		`, testRepo)
+		`, randomID)
 
 		check := resource.ComposeAggregateTestCheckFunc(
-			resource.TestCheckResourceAttrSet("data.github_actions_public_key.test_pk", "key_id"),
-			resource.TestCheckResourceAttrSet("data.github_actions_public_key.test_pk", "key"),
+			resource.TestCheckResourceAttrSet(
+				"data.github_actions_public_key.test_pk", "key_id",
+			),
+			resource.TestCheckResourceAttrSet(
+				"data.github_actions_public_key.test_pk", "key",
+			),
 		)
 
 		testCase := func(t *testing.T, mode string) {
@@ -66,7 +71,7 @@ func TestAccGithubActionsSecret(t *testing.T) {
 
 		config := fmt.Sprintf(`
 			resource "github_repository" "test" {
-			  name = "%s"
+			  name = "tf-acc-test-%s"
 			}
 
 			resource "github_actions_secret" "test_secret" {
@@ -74,18 +79,32 @@ func TestAccGithubActionsSecret(t *testing.T) {
 			  secret_name      = "test_secret_name"
 			  plaintext_value  = "%s"
 			}
-		`, testRepo, secretValue)
+		`, randomID, secretValue)
 
 		checks := map[string]resource.TestCheckFunc{
 			"before": resource.ComposeTestCheckFunc(
-				resource.TestCheckResourceAttr("github_actions_secret.test_secret", "plaintext_value", secretValue),
-				resource.TestCheckResourceAttrSet("github_actions_secret.test_secret", "created_at"),
-				resource.TestCheckResourceAttrSet("github_actions_secret.test_secret", "updated_at"),
+				resource.TestCheckResourceAttr(
+					"github_actions_secret.test_secret", "plaintext_value",
+					secretValue,
+				),
+				resource.TestCheckResourceAttrSet(
+					"github_actions_secret.test_secret", "created_at",
+				),
+				resource.TestCheckResourceAttrSet(
+					"github_actions_secret.test_secret", "updated_at",
+				),
 			),
 			"after": resource.ComposeTestCheckFunc(
-				resource.TestCheckResourceAttr("github_actions_secret.test_secret", "plaintext_value", updatedSecretValue),
-				resource.TestCheckResourceAttrSet("github_actions_secret.test_secret", "created_at"),
-				resource.TestCheckResourceAttrSet("github_actions_secret.test_secret", "updated_at"),
+				resource.TestCheckResourceAttr(
+					"github_actions_secret.test_secret", "plaintext_value",
+					updatedSecretValue,
+				),
+				resource.TestCheckResourceAttrSet(
+					"github_actions_secret.test_secret", "created_at",
+				),
+				resource.TestCheckResourceAttrSet(
+					"github_actions_secret.test_secret", "updated_at",
+				),
 			),
 		}
 
@@ -128,7 +147,7 @@ func TestAccGithubActionsSecret(t *testing.T) {
 
 		config := fmt.Sprintf(`
 				resource "github_repository" "test" {
-					name = "%s"
+					name = "tf-acc-test-%s"
 				}
 
 				resource "github_actions_secret" "test_secret" {
@@ -136,7 +155,7 @@ func TestAccGithubActionsSecret(t *testing.T) {
 					secret_name      = "test_secret_name"
 					plaintext_value  = "%s"
 				}
-			`, testRepo, secretValue)
+			`, randomID, secretValue)
 
 		testCase := func(t *testing.T, mode string) {
 			resource.Test(t, resource.TestCase{
