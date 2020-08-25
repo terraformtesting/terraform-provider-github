@@ -22,9 +22,17 @@ func TestAccGithubRepositoriesDataSource(t *testing.T) {
 		`, testOrganization)
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestMatchResourceAttr("data.github_repositories.test", "full_names.0", regexp.MustCompile(`^`+testOrganization)),
-			resource.TestCheckResourceAttrSet("data.github_repositories.test", "names.0"),
-			resource.TestCheckResourceAttr("data.github_repositories.test", "sort", "updated"),
+			resource.TestMatchResourceAttr(
+				"data.github_repositories.test", "full_names.0",
+				regexp.MustCompile(`^`+testOrganization),
+			),
+			resource.TestCheckResourceAttrSet(
+				"data.github_repositories.test", "names.0",
+			),
+			resource.TestCheckResourceAttr(
+				"data.github_repositories.test", "sort",
+				"updated",
+			),
 		)
 
 		testCase := func(t *testing.T, mode string) {
@@ -66,8 +74,14 @@ func TestAccGithubRepositoriesDataSource(t *testing.T) {
 		`
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("data.github_repositories.test", "full_names.#", "0"),
-			resource.TestCheckResourceAttr("data.github_repositories.test", "names.#", "0"),
+			resource.TestCheckResourceAttr(
+				"data.github_repositories.test", "full_names.#",
+				"0",
+			),
+			resource.TestCheckResourceAttr(
+				"data.github_repositories.test", "names.#",
+				"0",
+			),
 		)
 
 		testCase := func(t *testing.T, mode string) {
