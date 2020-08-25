@@ -35,7 +35,10 @@ func TestAccGithubRepositories(t *testing.T) {
 		`, randomID)
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("github_repository.test", "has_issues", "true"),
+			resource.TestCheckResourceAttr(
+				"github_repository.test", "has_issues",
+				"true",
+			),
 		)
 
 		testCase := func(t *testing.T, mode string) {
@@ -123,10 +126,16 @@ func TestAccGithubRepositories(t *testing.T) {
 
 		checks := map[string]resource.TestCheckFunc{
 			"before": resource.ComposeTestCheckFunc(
-				resource.TestCheckResourceAttr("github_repository.test", "archived", "false"),
+				resource.TestCheckResourceAttr(
+					"github_repository.test", "archived",
+					"false",
+				),
 			),
 			"after": resource.ComposeTestCheckFunc(
-				resource.TestCheckResourceAttr("github_repository.test", "archived", "true"),
+				resource.TestCheckResourceAttr(
+					"github_repository.test", "archived",
+					"true",
+				),
 			),
 		}
 
@@ -175,10 +184,16 @@ func TestAccGithubRepositories(t *testing.T) {
 
 		checks := map[string]resource.TestCheckFunc{
 			"before": resource.ComposeTestCheckFunc(
-				resource.TestCheckResourceAttr("github_repository.test", "has_projects", "false"),
+				resource.TestCheckResourceAttr(
+					"github_repository.test", "has_projects",
+					"false",
+				),
 			),
 			"after": resource.ComposeTestCheckFunc(
-				resource.TestCheckResourceAttr("github_repository.test", "has_projects", "true"),
+				resource.TestCheckResourceAttr(
+					"github_repository.test", "has_projects",
+					"true",
+				),
 			),
 		}
 
@@ -227,12 +242,18 @@ func TestAccGithubRepositories(t *testing.T) {
 
 		checks := map[string]resource.TestCheckFunc{
 			"before": resource.ComposeTestCheckFunc(
-				resource.TestCheckResourceAttr("github_repository.test", "default_branch", "master"),
+				resource.TestCheckResourceAttr(
+					"github_repository.test", "default_branch",
+					"master",
+				),
 			),
 			// FIXME: Deferred until https://github.com/terraform-providers/terraform-provider-github/issues/513
 			// > Cannot update default branch for an empty repository. Please init the repository and push first
 			// "after": resource.ComposeTestCheckFunc(
-			// 	resource.TestCheckResourceAttr("github_repository.test", "default_branch", "default"),
+			// 	resource.TestCheckResourceAttr(
+			// 		"github_repository.test", "default_branch",
+			// 		"default",
+			// 	),
 			// ),
 		}
 
@@ -281,8 +302,14 @@ func TestAccGithubRepositories(t *testing.T) {
 		`, randomID)
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("github_repository.test", "license_template", "ms-pl"),
-			resource.TestCheckResourceAttr("github_repository.test", "gitignore_template", "C++"),
+			resource.TestCheckResourceAttr(
+				"github_repository.test", "license_template",
+				"ms-pl",
+			),
+			resource.TestCheckResourceAttr(
+				"github_repository.test", "gitignore_template",
+				"C++",
+			),
 		)
 
 		testCase := func(t *testing.T, mode string) {
@@ -323,7 +350,10 @@ func TestAccGithubRepositories(t *testing.T) {
 		`, randomID)
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("github_repository.test", "topics.#", "2"),
+			resource.TestCheckResourceAttr(
+				"github_repository.test", "topics.#",
+				"2",
+			),
 		)
 
 		testCase := func(t *testing.T, mode string) {
@@ -369,7 +399,10 @@ func TestAccGithubRepositories(t *testing.T) {
 		`, randomID, testOrganization, "terraform-template-module")
 
 		check := resource.ComposeTestCheckFunc(
-			resource.TestCheckResourceAttr("github_repository.test", "is_template", "false"),
+			resource.TestCheckResourceAttr(
+				"github_repository.test", "is_template",
+				"false",
+			),
 		)
 
 		testCase := func(t *testing.T, mode string) {
