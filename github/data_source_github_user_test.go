@@ -16,7 +16,7 @@ func TestAccGithubUserDataSource(t *testing.T) {
 			data "github_user" "test" {
 				username = "%s"
 			}
-		`, testOwner)
+		`, testOwnerFunc())
 
 		check := resource.ComposeAggregateTestCheckFunc(
 			resource.TestCheckResourceAttrSet("data.github_user.test", "name"),
@@ -56,7 +56,7 @@ func TestAccGithubUserDataSource(t *testing.T) {
 				data "github_user" "test" {
 					username = "!%s"
 				}
-			`, testOwner)
+			`, testOwnerFunc())
 
 		testCase := func(t *testing.T, mode string) {
 			resource.Test(t, resource.TestCase{
