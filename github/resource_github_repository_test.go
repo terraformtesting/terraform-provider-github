@@ -497,7 +497,7 @@ func TestAccGithubRepositories(t *testing.T) {
 
 			config := fmt.Sprintf(`
 				resource "github_repository" "test" {
-					name                 = "tf-acc-test-vuln-%s"
+					name                 = "tf-acc-test-pub-vuln-%s"
 					visibility = "public"
 				}
 			`, randomID)
@@ -557,7 +557,7 @@ func TestAccGithubRepositories(t *testing.T) {
 
 			config := fmt.Sprintf(`
 				resource "github_repository" "test" {
-					name                 = "tf-acc-test-vuln-%s"
+					name                 = "tf-acc-test-priv-vuln-%s"
 					visibility = "private"
 				}
 			`, randomID)
